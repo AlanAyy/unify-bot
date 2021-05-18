@@ -10,10 +10,10 @@ from math import floor
 
 import discord
 from discord.ext import commands
-from discord.ext.commands import group
+from discord.ext.commands import group, errors
 from cogs.utils.config import get_settings, write_settings
 from cogs.utils.email_util import send_email
-from cogs.utils.embeds import DEFAULT_COLOUR
+from cogs.utils.discord_values import DEFAULT_COLOR
 
 
 class Verify(commands.Cog):
@@ -39,6 +39,10 @@ class Verify(commands.Cog):
                                'expires in 24 hours.')
 
     @group(description='Register yourself with UniFy.',
+           usage='to begin the registration process, '
+                 '\n!register code {code} to input your verification code (in DMs only), '
+                 '\n!register again to confirm your registration and receive the verified role '
+                 '(in the #verification server channel).',
            invoke_without_subcommand=True)
     async def register(self, ctx):
         # TODO: Check for repeat code inputs to prevent brute-force possibilities
@@ -51,10 +55,10 @@ class Verify(commands.Cog):
 
         # Check if the user is already registered
         settings = get_settings('users.json', 'verified')
-        role_found = False
+        role_added = False
         if str(ctx.author.id) in settings.keys():
             # Embed magic c:
-            e = discord.Embed(color=DEFAULT_COLOUR, description=ctx.author.mention)
+            e = discord.Embed(color=DEFAULT_COLOR, description=ctx.author.mention)
             e.set_author(name=ctx.author, icon_url=ctx.author.avatar_url)
             # Start going through the domain's categories
             user_domain = settings.get(str(ctx.author.id)).get('domain')
@@ -68,26 +72,28 @@ class Verify(commands.Cog):
                     for role in ctx.guild.roles:
                         # If the stored role exists, attempt to give it to user
                         if verified_role == str(role.id) and verified_role is not None:
-                            role_found = True
                             await ctx.author.add_roles(role, reason='Verified')
-                            e.add_field(name='Verified role applied!',
-                                        value='If you are experiencing issues with accessing '
-                                              'servers, please contact us using "!mail {message}"')
+                            if role in ctx.author.roles:
+                                role_added = True
                             break
-                if role_found:
+                if role_added:
                     break
-            # TODO: Cover edge case where user does not get role but also does not get message
-            if not role_found:
+            # Confirm that the user now has the role
+            if role_added:
+                e.add_field(name='Verified role applied!',
+                            value='If you are experiencing issues, '
+                                  'please contact us using "!mail {message}"')
+            else:
                 e.add_field(name='You are already registered!',
-                            value='If you are experiencing issues with accessing '
-                                  'servers, please contact us using "!mail {message}".')
+                            value='If you are experiencing issues, '
+                                  'please contact us using "!mail {message}".')
             return await ctx.send(embed=e)
 
         # Upon running !register, send user a DM requesting their email address
-        e = discord.Embed(color=DEFAULT_COLOUR)
+        e = discord.Embed(color=DEFAULT_COLOR)
         e.add_field(name='Register with UniFy', value=self._register_message)
         await ctx.author.send(embed=e)
-        e = discord.Embed(color=DEFAULT_COLOUR)  # Reset the embed
+        e = discord.Embed(color=DEFAULT_COLOR)  # Reset the embed
 
         def check(msg):
             return re.search(self._email_regex, msg.content) and msg.channel == ctx.author.dm_channel
@@ -128,8 +134,7 @@ class Verify(commands.Cog):
                                 value='A verification code has been sent to {.content}. '.format(reply) +
                                       'Please check your email (including your spam folder) and type '
                                       'it here.')
-                    e.add_field(name='Format:',
-                                value='!register code {insert code here}')
+                    e.add_field(name='Format:', value='!register code {insert code here}', inline=True)
                 else:
                     e.add_field(name='User is already pending verification!',
                                 value='A code has already been sent to you. Please complete your pending '
@@ -147,8 +152,9 @@ class Verify(commands.Cog):
     @register.command(description='Input the verification code sent to your email to register with UniFy',
                       usage='{code}')
     @commands.dm_only()
+    @commands.cooldown(5, 900.0, commands.BucketType.user)  # Once every 15m per user
     async def code(self, ctx, code):
-        e = discord.Embed(color=DEFAULT_COLOUR)
+        e = discord.Embed(color=DEFAULT_COLOR)
 
         def del_pending_user(user_to_delete):
             with open('settings/users.json', 'r+') as fpd:
@@ -206,13 +212,17 @@ class Verify(commands.Cog):
 
     @register.error
     async def register_error(self, ctx, error):
-        e = discord.Embed(color=DEFAULT_COLOUR)
-        if isinstance(error, commands.CommandInvokeError):
+        e = discord.Embed(color=DEFAULT_COLOR)
+        if isinstance(error, errors.CommandNotFound):
+            e.add_field(name='Command not found!',
+                        value='Please check the spelling and try again.')
+        elif isinstance(error, errors.CommandInvokeError):
             e.add_field(name='DM could not be sent!',
                         value='Please temporarily allow Direct Messages from other server members '
                               'to continue with the registration process.')
-            print(error)
         else:
+            e.add_field(name='There was an error!',
+                        value='We don\'t know exactly what happened there. Please try again.')
             raise error
 
         return await ctx.send(embed=e)

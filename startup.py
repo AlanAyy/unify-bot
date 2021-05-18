@@ -33,7 +33,7 @@ logging.basicConfig(level=logging.INFO)
 bot = commands.Bot(
     command_prefix=get_settings('config.json', 'prefix'),
     description='''UniFy, the Discord Bot made to help students connect with each other.
-                \nMade by AlanAyy'''
+                Made by AlanAyy'''
 )
 
 # Time to load our modules :D

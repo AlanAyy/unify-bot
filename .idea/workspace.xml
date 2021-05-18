@@ -2,27 +2,17 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="1f044f2f-420a-4881-8c58-a8ab52fdb459" name="Default Changelist" comment="Loooots of functionality added.">
-      <change afterPath="$PROJECT_DIR$/.idea/.gitignore" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/UniFyBot.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/cogs/fun.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/cogs/misc.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/cogs/owner.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/cogs/servers.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/cogs/utils/config.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/cogs/utils/email_util.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/cogs/utils/embeds.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/cogs/utils/messaging.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/cogs/verify.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/ember_reference.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/settings/servers.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/startup.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/version.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/cogs/utils/logging.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/cogs/utils/strings.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cogs/misc.py" beforeDir="false" afterPath="$PROJECT_DIR$/cogs/info.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cogs/servers.py" beforeDir="false" afterPath="$PROJECT_DIR$/cogs/servers.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cogs/utils/embeds.py" beforeDir="false" afterPath="$PROJECT_DIR$/cogs/utils/discord_values.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cogs/utils/messaging.py" beforeDir="false" afterPath="$PROJECT_DIR$/cogs/utils/messaging.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cogs/verify.py" beforeDir="false" afterPath="$PROJECT_DIR$/cogs/verify.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ember_reference.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/startup.py" beforeDir="false" afterPath="$PROJECT_DIR$/startup.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -86,7 +76,14 @@
       <option name="project" value="LOCAL" />
       <updated>1620766678745</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="Loooots of functionality added.">
+      <created>1621364305798</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1621364305798</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">

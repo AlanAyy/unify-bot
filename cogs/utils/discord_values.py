@@ -16,4 +16,4 @@ discord_color_hexes = {
     "role_grey_1": 0x607D8B, "role_grey_2": 0x546E7A
 }
 
-DEFAULT_COLOUR = discord.Colour.orange()
+DEFAULT_COLOR = discord.Colour.orange()

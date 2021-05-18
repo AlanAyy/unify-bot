@@ -2,7 +2,7 @@ import discord
 from discord import Member
 from discord.ext.commands import Context
 
-from cogs.utils.embeds import DEFAULT_COLOUR
+from cogs.utils.discord_values import DEFAULT_COLOR
 
 
 # def mail(bot: Bot, ctx: Context, message: str, confirmation=True):
@@ -23,7 +23,7 @@ from cogs.utils.embeds import DEFAULT_COLOUR
 
 
 async def dm(user: Member, ctx: Context, message: str, confirmation_msg: str = None, display_author=True,
-             title=None, color=DEFAULT_COLOUR, description=None, name='DM'):
+             title=None, color=DEFAULT_COLOR, description=None, name='DM'):
     """
     :param user: A Member object of the user who will receive the DM
     :param ctx: The context of the request to DM
@@ -45,7 +45,7 @@ async def dm(user: Member, ctx: Context, message: str, confirmation_msg: str = N
     e.add_field(name=name, value=message)
 
     if confirmation_msg is not None:
-        e2 = discord.Embed(title=confirmation_msg, color=DEFAULT_COLOUR, description=ctx.author.mention)
+        e2 = discord.Embed(title=confirmation_msg, color=DEFAULT_COLOR, description=ctx.author.mention)
         await ctx.send(embed=e2)
 
     return await user.send(embed=e)

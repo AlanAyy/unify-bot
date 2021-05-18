@@ -2,7 +2,7 @@ import discord
 from discord.ext import commands
 from discord.ext.commands import group, has_permissions
 
-from cogs.utils.embeds import DEFAULT_COLOUR
+from cogs.utils.discord_values import DEFAULT_COLOR
 
 
 class Servers(commands.Cog):
@@ -19,7 +19,7 @@ class Servers(commands.Cog):
     @group()
     async def servers(self, ctx):
         if ctx.invoked_subcommand is None:
-            e = discord.Embed(color=DEFAULT_COLOUR)
+            e = discord.Embed(color=DEFAULT_COLOR)
             e.add_field(name='Invalid subcommand!',
                         value='Please type "!help servers" to get started!')
             return await ctx.send(e)
@@ -29,8 +29,8 @@ class Servers(commands.Cog):
     @has_permissions(administrator=True)
     async def add(self, ctx, *args):
         # TODO: Send a DM to Owner requesting to add a server to the database
-        server, name, link, verified_role = args
-        e = discord.Embed(color=DEFAULT_COLOUR)
+        server_id, name, link, verified_role_id = args
+        e = discord.Embed(color=DEFAULT_COLOR)
 
         return await ctx.send(embed=e)
         pass
@@ -40,7 +40,7 @@ class Servers(commands.Cog):
     @has_permissions(administrator=True)
     async def blacklist(self, ctx):
         # TODO: Send a DM to Owner requesting to add a user to the blacklist with a reason
-        e = discord.Embed(color=DEFAULT_COLOUR)
+        e = discord.Embed(color=DEFAULT_COLOR)
 
         return await ctx.send(embed=e)
         pass
@@ -55,7 +55,7 @@ class Servers(commands.Cog):
                      usage='')
     async def list(self, ctx):
         # TODO: DM a list of all relevant servers from the same domain
-        e = discord.Embed(color=DEFAULT_COLOUR)
+        e = discord.Embed(color=DEFAULT_COLOR)
 
         return await ctx.send(embed=e)
         pass
@@ -66,9 +66,10 @@ class Servers(commands.Cog):
                       '?client_id=843981504785809438' \
                       '&permissions={perms}' \
                       '&scope=bot'
+        # TODO: Hex calculator for perms?
         msg_perms = default_url.format(perms='2048')
         role_perms = default_url.format(perms='268437504')
-        e = discord.Embed(color=DEFAULT_COLOUR)
+        e = discord.Embed(color=DEFAULT_COLOR)
         e.add_field(name='Invite UniFy to your server!',
                     value='[Send Messages only]({url})'.format(url=msg_perms) +
                           '\n[Manage Roles + Send Messages]({url})'.format(url=role_perms))
