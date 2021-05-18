@@ -14,6 +14,7 @@ from discord.ext.commands import group, errors
 from cogs.utils.config import get_settings, write_settings
 from cogs.utils.email_util import send_email
 from cogs.utils.discord_values import DEFAULT_COLOR
+from cogs.utils.logger import log
 
 
 class Verify(commands.Cog):
@@ -99,13 +100,13 @@ class Verify(commands.Cog):
             return re.search(self._email_regex, msg.content) and msg.channel == ctx.author.dm_channel
 
         try:
-            print('Waiting 60s for {.author}'.format(ctx))
+            log('Waiting 60s for {.author}'.format(ctx))
             reply = await self.bot.wait_for('message', timeout=60.0, check=check)  # Wait 60s for their reply
         except asyncio.TimeoutError:
-            print('Time expired for {.author}'.format(ctx))
+            log('Time expired for {.author}'.format(ctx))
             e.add_field(name='Time expired (60s).', value='Please type in a valid email before time runs out.')
         else:
-            print('Successful email reply from {.author}'.format(ctx))
+            log('Successful email reply from {.author}'.format(ctx))
             # Read JSON domain
             email, domain = reply.content.split('@')
             verified_unis = get_settings('config.json', 'verified_unis')

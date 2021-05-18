@@ -1,18 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="1f044f2f-420a-4881-8c58-a8ab52fdb459" name="Default Changelist" comment="Loooots of functionality added.">
-      <change afterPath="$PROJECT_DIR$/cogs/utils/logging.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/cogs/utils/strings.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" afterDir="false" />
+    <list default="true" id="1f044f2f-420a-4881-8c58-a8ab52fdb459" name="Default Changelist" comment="Added FAQ and cmd cooldowns">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cogs/misc.py" beforeDir="false" afterPath="$PROJECT_DIR$/cogs/info.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cogs/info.py" beforeDir="false" afterPath="$PROJECT_DIR$/cogs/info.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cogs/servers.py" beforeDir="false" afterPath="$PROJECT_DIR$/cogs/servers.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cogs/utils/embeds.py" beforeDir="false" afterPath="$PROJECT_DIR$/cogs/utils/discord_values.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cogs/utils/messaging.py" beforeDir="false" afterPath="$PROJECT_DIR$/cogs/utils/messaging.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cogs/utils/logging.py" beforeDir="false" afterPath="$PROJECT_DIR$/cogs/utils/logger.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cogs/verify.py" beforeDir="false" afterPath="$PROJECT_DIR$/cogs/verify.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ember_reference.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/startup.py" beforeDir="false" afterPath="$PROJECT_DIR$/startup.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -83,7 +77,14 @@
       <option name="project" value="LOCAL" />
       <updated>1621364305798</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="Added FAQ and cmd cooldowns">
+      <created>1621376644781</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1621376644781</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -101,7 +102,8 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="License update" />
     <MESSAGE value="Loooots of functionality added." />
-    <option name="LAST_COMMIT_MESSAGE" value="Loooots of functionality added." />
+    <MESSAGE value="Added FAQ and cmd cooldowns" />
+    <option name="LAST_COMMIT_MESSAGE" value="Added FAQ and cmd cooldowns" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

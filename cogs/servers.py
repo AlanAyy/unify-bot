@@ -16,7 +16,7 @@ class Servers(commands.Cog):
     #                         #
     ###########################
 
-    @group()
+    @group(aliases=['server'])
     async def servers(self, ctx):
         if ctx.invoked_subcommand is None:
             e = discord.Embed(color=DEFAULT_COLOR)
