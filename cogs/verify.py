@@ -56,9 +56,8 @@ class Verify(commands.Cog):
 
         # Check if the user is already registered
         settings = get_settings('users.json', 'verified')
-        role_added = False
         if str(ctx.author.id) in settings.keys():
-            # Embed magic c:
+            role_check = 2  # 0 = Got verified, 1 = Already verified, 2 = Already registered
             e = discord.Embed(color=DEFAULT_COLOR, description=ctx.author.mention)
             e.set_author(name=ctx.author, icon_url=ctx.author.avatar_url)
             # Start going through the domain's categories
@@ -73,21 +72,30 @@ class Verify(commands.Cog):
                     for role in ctx.guild.roles:
                         # If the stored role exists, attempt to give it to user
                         if verified_role == str(role.id) and verified_role is not None:
-                            await ctx.author.add_roles(role, reason='Verified')
+                            # Make sure they don't already have the role
                             if role in ctx.author.roles:
-                                role_added = True
+                                log('{.author} already has the Verified role!'.format(ctx))
+                                role_check = 1
+                                break
+                            await ctx.author.add_roles(role, reason='User is registered with UniFy.')
+                            if role in ctx.author.roles:
+                                log('Verified role given to {.author}!'.format(ctx))
+                                role_check = 0
+                            # If code arrives here, UniFy could not assign
+                            # the Verified role to the user (role_check = 2)
                             break
-                if role_added:
+                if role_check != 2:
                     break
             # Confirm that the user now has the role
-            if role_added:
-                e.add_field(name='Verified role applied!',
-                            value='If you are experiencing issues, '
-                                  'please contact us using "!mail {message}"')
+            if role_check == 0:
+                e.add_field(name='Verification successful!',
+                            value='Thank you for using UniFy.')
+            elif role_check == 1:
+                e.add_field(name='You already have the Verified role!',
+                            value='If you are experiencing issues, please contact us using "!mail {message}".')
             else:
-                e.add_field(name='You are already registered!',
-                            value='If you are experiencing issues, '
-                                  'please contact us using "!mail {message}".')
+                e.add_field(name='I tried giving you the Verified role, but something went wrong!',
+                            value='If you are experiencing issues, please contact us using "!mail {message}".')
             return await ctx.send(embed=e)
 
         # Upon running !register, send user a DM requesting their email address
@@ -130,7 +138,7 @@ class Verify(commands.Cog):
                     # Send the email with the code, and inform the user on how to confirm it.
                     send_email(reply.content, 'UniFy Verification Code',
                                self._email_message.format(author=ctx.author.name, id=ctx.author.id, code=code))
-                    print('Email sent to {reply} at {time}.'.format(reply=reply.content, time=now))
+                    log('Email sent to {reply} at {time}.'.format(reply=reply.content, time=now))
                     e.add_field(name='Email sent!',
                                 value='A verification code has been sent to {.content}. '.format(reply) +
                                       'Please check your email (including your spam folder) and type '

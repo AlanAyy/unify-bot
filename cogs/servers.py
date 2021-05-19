@@ -1,14 +1,20 @@
+import re
+
 import discord
 from discord.ext import commands
 from discord.ext.commands import group, has_permissions
 
+from cogs.utils import messaging
+from cogs.utils.config import get_settings, write_settings
 from cogs.utils.discord_values import DEFAULT_COLOR
+from cogs.utils.logger import log
 
 
 class Servers(commands.Cog):
 
     def __init__(self, bot):
         self.bot = bot
+        self._use_help = 'Please use "!help servers request" for more information.'
 
     ###########################
     #                         #
@@ -24,16 +30,108 @@ class Servers(commands.Cog):
                         value='Please type "!help servers" to get started!')
             return await ctx.send(e)
 
-    @servers.command(description='Request to have a server added to the database. A verified role must exist.',
-                     usage='{server ID} {name} {permanent invite} {ID of "verified role"}')
+    @servers.command(description='Request to have a server added to the database. A verified role must exist.'
+                                 '\n\nTo get your server ID, right-click your server icon and select "Copy ID".'
+                                 '\nTo get a permanent invite, click on your server name and select "Invite '
+                                 'People". Next, select "Edit invite link", select "EXPIRE AFTER: Never" '
+                                 'and "MAX NUMBER OF USES: No Limit", then "Generate a New Link", then "Copy".'
+                                 '\nTo get your verified role ID, click on your server name and navigate to '
+                                 'Server Settings > Roles. If you do not have a Verified role, create one. '
+                                 'If you do, hover over it, select "More", then "Copy ID".',
+                     usage='{server ID} {"name in quotation marks"} {permanent invite} {Verified role ID}')
     @has_permissions(administrator=True)
-    async def add(self, ctx, *args):
-        # TODO: Send a DM to Owner requesting to add a server to the database
-        server_id, name, link, verified_role_id = args
+    @commands.cooldown(1, 30.0, commands.BucketType.user)  # Once every 30s per user
+    async def request(self, ctx, *, message):
+        # TODO: Proper error handling on cases with incorrect amount of args (should be 4)
+        # TODO: Check if user is verified before running this command
         e = discord.Embed(color=DEFAULT_COLOR)
+        # Get bot owner info
+        owner_id = get_settings('config.json', 'owner_id')
+        me = await self.bot.fetch_user(owner_id)
+
+        # Error handling time
+        args = None
+        try:
+            # Fancy regex voodoo to parse user args c:
+            args = re.compile('["\']\\s+|\\s+["\']').split(message)
+            args[2:] = re.compile('\\s+').split(args[2])
+        except IndexError as error:
+            e.add_field(name='Invalid use of command!',
+                        value=self._use_help)
+            await ctx.send(embed=e)
+            raise error
+
+        #       If user gives an incorrect amount of arguments
+        # if len(args) != 4:
+        #     e.add_field(name='Invalid amount of arguments passed! (Expected 4, got {amount})'.format(amount=len(args)),
+        #                 value=self._use_help)
+        #     return await ctx.send(e)
+
+        # More error handling time
+        server_id, name, invite, verified_role = args
+        # If there's a letter in the Server ID, or if it's not 18 numbers long
+        if re.search('[a-zA-Z]', server_id) is not None or len(server_id) != 18:
+            error_message = 'Invalid server ID!'
+        # If the invite link is not a link
+        elif 'https://discord.gg/' not in invite:
+            error_message = 'Invalid invite link!'
+        # Same checks as Server ID but on the Role ID instead
+        elif re.search('[a-zA-Z]', verified_role) is not None or len(verified_role) != 18:
+            error_message = 'Invalid Verified role ID!'
+        # If it's all valid
+        else:
+            await messaging.dm(me, ctx,
+                               '''
+                               Server ID: {0}
+                               Name: {1}
+                               Invite Link: {2}
+                               Verified Role ID: {3}'''.format(*args),
+                               confirmation_msg='Request sent successfully!',
+                               name='Server request!', )
+            return  # Make sure we're not sending two messages
+        e.add_field(name=error_message, value=self._use_help)
+        return await ctx.send(embed=e)
+
+    @servers.command(description='Add a server to the database.',
+                     usage='{domain} {"category"} {server ID} {"name"} {permanent invite} {ID of "verified role"}')
+    @commands.is_owner()  # Only the bot owner may run this command c:
+    @commands.dm_only()
+    async def add(self, ctx, *, message):
+        # TODO: Auto backup of users.json and servers.json files
+        # Same fancy regex voodoo magic
+        args = re.compile('["\']\\s+|\\s+["\']').split(message)
+        args[4:] = re.compile('\\s+').split(args[4])
+
+        domain, category, server_id, name, invite_link, verified_role = args
+        settings_data = get_settings('servers.json', domain)
+        data = {
+            category: {
+                server_id: {
+                    "name": name,
+                    "invite_link": invite_link,
+                    "verified_role": verified_role
+                }
+            }
+        }
+        if settings_data['servers'].get(category) is not None:
+            data = data[category]
+            settings_data['servers'][category].update(data)
+            write_settings('servers.json', domain, settings_data, mode='update')
+        # If category does not exist
+        else:
+            settings_data['servers'].update(data)
+            write_settings('servers.json', domain, settings_data, mode='update')
+
+        log('Server {name} added to servers.json!'.format(name=name))
+        e = discord.Embed(title='Server "{name}" successfully added!'.format(name=name), color=DEFAULT_COLOR)
+        e.add_field(name='Domain: {0[0]}'.format(args),
+                    value='''Category: {0[1]}
+                    Server ID: {0[2]}
+                    Name: {0[3]}
+                    Invite Link: {0[4]}
+                    Verified Role: {0[5]}'''.format(args))
 
         return await ctx.send(embed=e)
-        pass
 
     @servers.command(description='',
                      usage='')
