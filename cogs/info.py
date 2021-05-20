@@ -2,7 +2,7 @@ import discord
 from discord.ext import commands
 
 from cogs.utils.config import get_settings
-from cogs.utils import messaging
+from cogs.utils import user_util
 from cogs.utils.discord_values import DEFAULT_COLOR
 
 
@@ -48,7 +48,7 @@ class Info(commands.Cog):
         owner_id = get_settings('config.json', 'owner_id')
         me = await self.bot.fetch_user(owner_id)
 
-        await messaging.dm(me, ctx, name='Mail', message=message, confirmation_msg='Message sent!')
+        await user_util.dm(me, ctx, name='Mail', message=message, confirmation_msg='Message sent!')
 
         #       Messaging time
         # e = discord.Embed(color=discord.Colour.orange(), description=ctx.author.mention)

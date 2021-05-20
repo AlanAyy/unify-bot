@@ -4,7 +4,7 @@ import discord
 from discord.ext import commands
 from discord.ext.commands import group, has_permissions
 
-from cogs.utils import messaging
+from cogs.utils import user_util
 from cogs.utils.config import get_settings, write_settings
 from cogs.utils.discord_values import DEFAULT_COLOR
 from cogs.utils.logger import log
@@ -43,14 +43,18 @@ class Servers(commands.Cog):
     @commands.cooldown(1, 30.0, commands.BucketType.user)  # Once every 30s per user
     async def request(self, ctx, *, message):
         # TODO: Proper error handling on cases with incorrect amount of args (should be 4)
-        # TODO: Check if user is verified before running this command
         e = discord.Embed(color=DEFAULT_COLOR)
+
+        # Check if user is registered with UniFy first
+        if not user_util.is_registered(ctx.author):
+            e.add_field(name='You are not registered!',
+                        value='Please complete your registration using "!register" before running this command.')
+
         # Get bot owner info
         owner_id = get_settings('config.json', 'owner_id')
         me = await self.bot.fetch_user(owner_id)
 
         # Error handling time
-        args = None
         try:
             # Fancy regex voodoo to parse user args c:
             args = re.compile('["\']\\s+|\\s+["\']').split(message)
@@ -60,12 +64,6 @@ class Servers(commands.Cog):
                         value=self._use_help)
             await ctx.send(embed=e)
             raise error
-
-        #       If user gives an incorrect amount of arguments
-        # if len(args) != 4:
-        #     e.add_field(name='Invalid amount of arguments passed! (Expected 4, got {amount})'.format(amount=len(args)),
-        #                 value=self._use_help)
-        #     return await ctx.send(e)
 
         # More error handling time
         server_id, name, invite, verified_role = args
@@ -80,7 +78,7 @@ class Servers(commands.Cog):
             error_message = 'Invalid Verified role ID!'
         # If it's all valid
         else:
-            await messaging.dm(me, ctx,
+            await user_util.dm(me, ctx,
                                '''
                                Server ID: {0}
                                Name: {1}
@@ -102,13 +100,13 @@ class Servers(commands.Cog):
         args = re.compile('["\']\\s+|\\s+["\']').split(message)
         args[4:] = re.compile('\\s+').split(args[4])
 
-        domain, category, server_id, name, invite_link, verified_role = args
+        domain, category, server_id, name, invite, verified_role = args
         settings_data = get_settings('servers.json', domain)
         data = {
             category: {
                 server_id: {
                     "name": name,
-                    "invite_link": invite_link,
+                    "invite": invite,
                     "verified_role": verified_role
                 }
             }
@@ -151,12 +149,45 @@ class Servers(commands.Cog):
 
     @servers.command(description='',
                      usage='')
-    async def list(self, ctx):
-        # TODO: DM a list of all relevant servers from the same domain
-        e = discord.Embed(color=DEFAULT_COLOR)
+    async def list(self, ctx, *, category=None):
+        # TODO: Make a "You must be registered!" default embed
+        # TODO: Proper. Fucking. Error. Handling.
+        # Check if user is registered with UniFy first
+        if not user_util.is_registered(ctx.author):
+            e = discord.Embed(color=DEFAULT_COLOR)
+            e.add_field(name='You are not registered!',
+                        value='Please complete your registration using "!register" before running this command, ' 
+                              'or contact us using "!mail {message}" if you are having issues.')
+            return await ctx.send(embed=e)
 
-        return await ctx.send(embed=e)
-        pass
+        domain = get_settings('users.json', 'verified').get(str(ctx.author.id)).get('domain')
+        categories = get_settings('servers.json', domain).get('servers')
+        # If they want to see categories (they called "!servers list")
+        if category is None:
+            # Get the user's domain, then its server categories
+            info = '\n'.join(categories.keys())
+        # If they want to see servers (they called "!servers list {category}")
+        elif categories.get(category) is not None:
+            if ctx.channel == ctx.author.dm_channel:
+                servers = categories.get(category)
+                # Now this is some crazy shit
+                info = '\n'.join('__**{name}**__: *{invite}*'.format(**data) for _, data in servers.items())
+            # If they called it in a public channel
+            else:
+                e = discord.Embed(color=DEFAULT_COLOR)
+                e.add_field(name='This command cannot be run in a public channel!',
+                            value='Please delete your message, and send the bot a direct message with your '
+                                  'command instead. This is in place to protect the privacy of our users.')
+                return await ctx.send(embed=e)
+        # Category does not exist?
+        else:
+            e = discord.Embed(color=DEFAULT_COLOR)
+            e.add_field(name='That category does not exist!',
+                        value='Please complete your registration using "!register" before running this command, '
+                              'or contact us using "!mail {message}" if you are having issues.')
+            return await ctx.send(embed=e)
+
+        return await user_util.dm(ctx.author, ctx, info, name='Server List')
 
     @commands.command()
     async def invite(self, ctx):

@@ -12,7 +12,7 @@ import discord
 from discord.ext import commands
 from discord.ext.commands import group, errors
 from cogs.utils.config import get_settings, write_settings
-from cogs.utils.email_util import send_email
+from cogs.utils.emailer import send_email
 from cogs.utils.discord_values import DEFAULT_COLOR
 from cogs.utils.logger import log
 

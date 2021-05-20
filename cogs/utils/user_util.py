@@ -2,6 +2,7 @@ import discord
 from discord import Member
 from discord.ext.commands import Context
 
+from cogs.utils.config import get_settings
 from cogs.utils.discord_values import DEFAULT_COLOR
 
 
@@ -36,7 +37,6 @@ async def dm(user: Member, ctx: Context, message: str, confirmation_msg: str = N
     :param name: Name of the message (defaults to 'DM')
     :return: Returns the DM sent
     """
-
     embed_description = (ctx.author.mention if description is None else description)
 
     e = discord.Embed(title=title, color=color, description=embed_description)
@@ -49,3 +49,15 @@ async def dm(user: Member, ctx: Context, message: str, confirmation_msg: str = N
         await ctx.send(embed=e2)
 
     return await user.send(embed=e)
+
+
+def is_registered(user: Member) -> bool:
+    verified = get_settings('users.json', 'verified')
+    if str(user.id) in verified.keys():
+        return True
+    return False
+
+
+def is_verified(user: Member, ctx: Context):
+    # TODO: Check if a user is already verified
+    pass

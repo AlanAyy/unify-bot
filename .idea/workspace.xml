@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="1f044f2f-420a-4881-8c58-a8ab52fdb459" name="Default Changelist" comment="Fixed logs and typos">
+    <list default="true" id="1f044f2f-420a-4881-8c58-a8ab52fdb459" name="Default Changelist" comment="Added servers list, and a lot of stuff probably idk">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cogs/info.py" beforeDir="false" afterPath="$PROJECT_DIR$/cogs/info.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cogs/servers.py" beforeDir="false" afterPath="$PROJECT_DIR$/cogs/servers.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cogs/utils/logger.py" beforeDir="false" afterPath="$PROJECT_DIR$/cogs/utils/logger.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cogs/utils/email_util.py" beforeDir="false" afterPath="$PROJECT_DIR$/cogs/utils/emailer.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cogs/utils/messaging.py" beforeDir="false" afterPath="$PROJECT_DIR$/cogs/utils/user_util.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cogs/verify.py" beforeDir="false" afterPath="$PROJECT_DIR$/cogs/verify.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -98,7 +100,14 @@
       <option name="project" value="LOCAL" />
       <updated>1621379633403</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="Added server request and add!">
+      <created>1621465349786</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1621465349786</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -118,7 +127,9 @@
     <MESSAGE value="Loooots of functionality added." />
     <MESSAGE value="Added FAQ and cmd cooldowns" />
     <MESSAGE value="Fixed logs and typos" />
-    <option name="LAST_COMMIT_MESSAGE" value="Fixed logs and typos" />
+    <MESSAGE value="Added server request and add!" />
+    <MESSAGE value="Added servers list, and a lot of stuff probably idk" />
+    <option name="LAST_COMMIT_MESSAGE" value="Added servers list, and a lot of stuff probably idk" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />
