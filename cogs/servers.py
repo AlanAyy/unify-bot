@@ -27,10 +27,19 @@ class Servers(commands.Cog):
         if ctx.invoked_subcommand is None:
             e = discord.Embed(color=DEFAULT_COLOR)
             e.add_field(name='Invalid subcommand!',
-                        value='Please type "!help servers" to get started!')
-            return await ctx.send(e)
+                        value='Please type "!help servers" to get started.')
+            return await ctx.send(embed=e)
+
+    @group()
+    async def blacklist(self, ctx):
+        if ctx.invoked_subcommand is None:
+            e = discord.Embed(color=DEFAULT_COLOR)
+            e.add_field(name='Invalid subcommand!',
+                        value='Please type "!help servers" to get started.')
+            return await ctx.send(embed=e)
 
     @servers.command(description='Request to have a server added to the database. A verified role must exist.'
+                                 '\nPlease enable Discord\'s Developer Mode before proceeding.'
                                  '\n\nTo get your server ID, right-click your server icon and select "Copy ID".'
                                  '\nTo get a permanent invite, click on your server name and select "Invite '
                                  'People". Next, select "Edit invite link", select "EXPIRE AFTER: Never" '
@@ -38,10 +47,10 @@ class Servers(commands.Cog):
                                  '\nTo get your verified role ID, click on your server name and navigate to '
                                  'Server Settings > Roles. If you do not have a Verified role, create one. '
                                  'If you do, hover over it, select "More", then "Copy ID".',
-                     usage='{server ID} {"name in quotation marks"} {permanent invite} {Verified role ID}')
+                     usage='[server ID] ["name in quotation marks"] [permanent invite] [Verified role ID]')
     @has_permissions(administrator=True)
     @commands.cooldown(1, 30.0, commands.BucketType.user)  # Once every 30s per user
-    async def request(self, ctx, *, message):
+    async def request(self, ctx, *, message=None):
         # TODO: Proper error handling on cases with incorrect amount of args (should be 4)
         e = discord.Embed(color=DEFAULT_COLOR)
 
@@ -49,6 +58,16 @@ class Servers(commands.Cog):
         if not user_util.is_registered(ctx.author):
             e.add_field(name='You are not registered!',
                         value='Please complete your registration using "!register" before running this command.')
+            return await ctx.send(embed=e)
+        elif ctx.channel != ctx.author.dm_channel:
+            e.add_field(name='This command cannot be run in a public channel!',
+                        value='Please delete your message, and send the bot a direct message with your '
+                              'command instead. This is in place to protect the privacy of our users.')
+            return await ctx.send(embed=e)
+        elif message is None:
+            e.add_field(name='Invalid subcommand!',
+                        value='Please type "!help servers request" to get started.')
+            return await ctx.send(embed=e)
 
         # Get bot owner info
         owner_id = get_settings('config.json', 'owner_id')
@@ -83,15 +102,121 @@ class Servers(commands.Cog):
                                Server ID: {0}
                                Name: {1}
                                Invite Link: {2}
-                               Verified Role ID: {3}'''.format(*args),
+                               Verified Role ID: {3}
+                               
+                               To confirm, use `!servers add {0} {1} {2} {3}`'''.format(*args),
                                confirmation_msg='Request sent successfully!',
-                               name='Server request!', )
+                               name='Server request!')
             return  # Make sure we're not sending two messages
         e.add_field(name=error_message, value=self._use_help)
         return await ctx.send(embed=e)
 
+    @blacklist.command(description='Request to blacklist a user from all registered servers.'
+                                 '\nPlease enable Discord\'s Developer Mode before proceeding.'
+                                 '\n\nTo get the user\'s ID, right-click their profile picture or name and '
+                                 'select "Copy ID".',
+                     usage='[user ID] [reason (optional but very recommended)]')
+    @has_permissions(administrator=True)
+    @commands.cooldown(1, 30.0, commands.BucketType.user)  # Once every 30s per user
+    async def request(self, ctx, user_id=None, reason='No reason provided.'):
+        e = discord.Embed(color=DEFAULT_COLOR)
+
+        # Check if user is registered with UniFy first
+        if not user_util.is_registered(ctx.author):
+            e.add_field(name='You are not registered!',
+                        value='Please complete your registration using "!register" before running this command.')
+            return await ctx.send(embed=e)
+        elif user_id is None or len(user_id) != 18:
+            e.add_field(name='Invalid User ID!',
+                        value='Please type "!help blacklist request" to get started.')
+            return await ctx.send(embed=e)
+
+        # Get bot owner info
+        owner_id = get_settings('config.json', 'owner_id')
+        me = await self.bot.fetch_user(owner_id)
+
+        await user_util.dm(me, ctx,
+                           '''
+                           User ID: {user_id}
+                           Reason: {reason}
+                           
+                           To confirm, use `!blacklist add {user_id}`'''.format(user_id=user_id, reason=reason),
+                           confirmation_msg='Request sent successfully!',
+                           name='BLACKLIST REQUEST!', color=discord.Colour.red())
+
+    #####################
+    #                   #
+    #   USER COMMANDS   #
+    #                   #
+    #####################
+
+    @servers.command(description='',
+                     usage='')
+    async def list(self, ctx, *, category=None):
+        # TODO: Make a "You must be registered!" default embed
+        # TODO: Proper. Fucking. Error. Handling.
+        # Check if user is registered with UniFy first
+        if not user_util.is_registered(ctx.author):
+            e = discord.Embed(color=DEFAULT_COLOR)
+            e.add_field(name='You are not registered!',
+                        value='Please complete your registration using "!register" before running this command, '
+                              'or contact us using "!mail [message]" if you are having issues.')
+            return await ctx.send(embed=e)
+
+        domain = get_settings('users.json', 'verified').get(str(ctx.author.id)).get('domain')
+        categories = get_settings('servers.json', domain).get('servers')
+        # If they want to see categories (they called "!servers list")
+        if category is None:
+            # Get the user's domain, then its server categories
+            info = ('\n'.join(categories.keys()) +
+                    '\n\n*Type "!servers list [category]" to continue browsing*')
+        # If they want to see servers (they called "!servers list {category}")
+        elif categories.get(category) is not None:
+            if ctx.channel == ctx.author.dm_channel:
+                servers = categories.get(category)
+                # Now this is some crazy shit
+                info = '\n'.join('__**{name}**__: *{invite}*'.format(**data) for _, data in servers.items())
+            # If they called it in a public channel
+            else:
+                e = discord.Embed(color=DEFAULT_COLOR)
+                e.add_field(name='This command cannot be run in a public channel!',
+                            value='Please delete your message, and send the bot a direct message with your '
+                                  'command instead. This is in place to protect the privacy of our users.')
+                return await ctx.send(embed=e)
+        # Category does not exist?
+        else:
+            e = discord.Embed(color=DEFAULT_COLOR)
+            e.add_field(name='That category does not exist!',
+                        value='Please complete your registration using "!register" before running this command, '
+                              'or contact us using "!mail [message]" if you are having issues.')
+            return await ctx.send(embed=e)
+
+        return await user_util.dm(ctx.author, ctx, info, name='Server List')
+
+    @commands.command()
+    async def invite(self, ctx):
+        default_url = 'https://discord.com/api/oauth2/authorize' \
+                      '?client_id=843981504785809438' \
+                      '&permissions={perms}' \
+                      '&scope=bot'
+        # TODO: Hex calculator for perms?
+        msg_perms = default_url.format(perms='2048')
+        role_perms = default_url.format(perms='268437504')
+        e = discord.Embed(color=DEFAULT_COLOR)
+        e.add_field(name='Invite UniFy to your server!',
+                    value='[Send Messages only]({url})'.format(url=msg_perms) +
+                          '\n[Manage Roles + Send Messages]({url})'.format(url=role_perms))
+
+        return await ctx.send(embed=e)
+
+    ######################
+    #                    #
+    #   OWNER COMMANDS   #
+    #                    #
+    ######################
+
     @servers.command(description='Add a server to the database.',
-                     usage='{domain} {"category"} {server ID} {"name"} {permanent invite} {ID of "verified role"}')
+                     usage='[domain] ["category"] [server ID] ["name"] [permanent invite] [ID of "verified role"]')
     @commands.is_owner()  # Only the bot owner may run this command c:
     @commands.dm_only()
     async def add(self, ctx, *, message):
@@ -114,11 +239,10 @@ class Servers(commands.Cog):
         if settings_data['servers'].get(category) is not None:
             data = data[category]
             settings_data['servers'][category].update(data)
-            write_settings('servers.json', domain, settings_data, mode='update')
         # If category does not exist
         else:
             settings_data['servers'].update(data)
-            write_settings('servers.json', domain, settings_data, mode='update')
+        write_settings('servers.json', domain, settings_data, mode='update')
 
         log('Server {name} added to servers.json!'.format(name=name))
         e = discord.Embed(title='Server "{name}" successfully added!'.format(name=name), color=DEFAULT_COLOR)
@@ -131,78 +255,49 @@ class Servers(commands.Cog):
 
         return await ctx.send(embed=e)
 
-    @servers.command(description='',
-                     usage='')
-    @has_permissions(administrator=True)
-    async def blacklist(self, ctx):
-        # TODO: Send a DM to Owner requesting to add a user to the blacklist with a reason
-        e = discord.Embed(color=DEFAULT_COLOR)
+    @blacklist.command(description='Blacklist a user from all university Discords.',
+                       usage='[User ID] [reason (defaults to None)]')
+    @commands.is_owner()  # Only the bot owner may run this command c:
+    @commands.dm_only()
+    async def add(self, ctx, user_id, reason=None):
+        # TODO: Make a "Blacklisted" role and give them that?
+        # Update the blacklist
+        write_settings('users.json', 'blacklisted', user_id, mode='update')
 
-        return await ctx.send(embed=e)
-        pass
+        # Get the user's info for easier finding
+        blacklisted_user = await self.bot.fetch_user(user_id)
+        e = discord.Embed(title='ALERT! User has been blacklisted!', description=blacklisted_user.mention,
+                          color=discord.Colour.red())
+        e.add_field(name='User ID: {.id}'.format(blacklisted_user),
+                    value='Please either ban or remove all permissions from this user ASAP!')
 
-    #####################
-    #                   #
-    #   USER COMMANDS   #
-    #                   #
-    #####################
+        # Attempt to ban the blacklisted user from all servers
+        # TODO: Remove 150 limit
+        async for guild in self.bot.fetch_guilds(limit=150):
+            try:
+                await guild.ban(user_id, reason=reason)
+            except discord.Forbidden:
+                # Go through each channel and try sending it to the best one
+                channel_list = guild.fetch_channels()
+                text_channels = [channel for channel in channel_list if isinstance(channel, discord.TextChannel)]
+                message_sent = False
+                # Go through twice: It will try sending it to the best channel on the
+                # first go, but if it can't, it will try sending it to any channel.
+                for i in range(2):
+                    for channel in text_channels:
+                        try:
+                            # If it's the best channel, or it's our second run-through, send the alert
+                            if ('mod' or 'admin' or 'general' in channel.name) or (i == 1):
+                                await channel.send(embed=e)
+                                message_sent = True
+                                break
+                        except discord.Forbidden:
+                            continue
+                    if message_sent:
+                        break
 
-    @servers.command(description='',
-                     usage='')
-    async def list(self, ctx, *, category=None):
-        # TODO: Make a "You must be registered!" default embed
-        # TODO: Proper. Fucking. Error. Handling.
-        # Check if user is registered with UniFy first
-        if not user_util.is_registered(ctx.author):
-            e = discord.Embed(color=DEFAULT_COLOR)
-            e.add_field(name='You are not registered!',
-                        value='Please complete your registration using "!register" before running this command, ' 
-                              'or contact us using "!mail {message}" if you are having issues.')
-            return await ctx.send(embed=e)
-
-        domain = get_settings('users.json', 'verified').get(str(ctx.author.id)).get('domain')
-        categories = get_settings('servers.json', domain).get('servers')
-        # If they want to see categories (they called "!servers list")
-        if category is None:
-            # Get the user's domain, then its server categories
-            info = '\n'.join(categories.keys())
-        # If they want to see servers (they called "!servers list {category}")
-        elif categories.get(category) is not None:
-            if ctx.channel == ctx.author.dm_channel:
-                servers = categories.get(category)
-                # Now this is some crazy shit
-                info = '\n'.join('__**{name}**__: *{invite}*'.format(**data) for _, data in servers.items())
-            # If they called it in a public channel
-            else:
-                e = discord.Embed(color=DEFAULT_COLOR)
-                e.add_field(name='This command cannot be run in a public channel!',
-                            value='Please delete your message, and send the bot a direct message with your '
-                                  'command instead. This is in place to protect the privacy of our users.')
-                return await ctx.send(embed=e)
-        # Category does not exist?
-        else:
-            e = discord.Embed(color=DEFAULT_COLOR)
-            e.add_field(name='That category does not exist!',
-                        value='Please complete your registration using "!register" before running this command, '
-                              'or contact us using "!mail {message}" if you are having issues.')
-            return await ctx.send(embed=e)
-
-        return await user_util.dm(ctx.author, ctx, info, name='Server List')
-
-    @commands.command()
-    async def invite(self, ctx):
-        default_url = 'https://discord.com/api/oauth2/authorize' \
-                      '?client_id=843981504785809438' \
-                      '&permissions={perms}' \
-                      '&scope=bot'
-        # TODO: Hex calculator for perms?
-        msg_perms = default_url.format(perms='2048')
-        role_perms = default_url.format(perms='268437504')
-        e = discord.Embed(color=DEFAULT_COLOR)
-        e.add_field(name='Invite UniFy to your server!',
-                    value='[Send Messages only]({url})'.format(url=msg_perms) +
-                          '\n[Manage Roles + Send Messages]({url})'.format(url=role_perms))
-
+        log('User {user_id} has been BLACKLISTED!'.format(user_id=user_id))
+        e = discord.Embed(title='User "{user_id}" has been BLACKLISTED!'.format(user_id=user_id), color=DEFAULT_COLOR)
         return await ctx.send(embed=e)
 
 
