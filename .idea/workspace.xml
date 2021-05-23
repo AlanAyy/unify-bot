@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="1f044f2f-420a-4881-8c58-a8ab52fdb459" name="Default Changelist" comment="Added servers list, and a lot of stuff probably idk">
+    <list default="true" id="1f044f2f-420a-4881-8c58-a8ab52fdb459" name="Default Changelist" comment="No longer store emails, and added !blacklist">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cogs/servers.py" beforeDir="false" afterPath="$PROJECT_DIR$/cogs/servers.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cogs/verify.py" beforeDir="false" afterPath="$PROJECT_DIR$/cogs/verify.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -111,7 +110,14 @@
       <option name="project" value="LOCAL" />
       <updated>1621471599071</updated>
     </task>
-    <option name="localTasksCounter" value="7" />
+    <task id="LOCAL-00007" summary="No longer store emails, and added !blacklist">
+      <created>1621562240278</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1621562240278</updated>
+    </task>
+    <option name="localTasksCounter" value="8" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -133,7 +139,8 @@
     <MESSAGE value="Fixed logs and typos" />
     <MESSAGE value="Added server request and add!" />
     <MESSAGE value="Added servers list, and a lot of stuff probably idk" />
-    <option name="LAST_COMMIT_MESSAGE" value="Added servers list, and a lot of stuff probably idk" />
+    <MESSAGE value="No longer store emails, and added !blacklist" />
+    <option name="LAST_COMMIT_MESSAGE" value="No longer store emails, and added !blacklist" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

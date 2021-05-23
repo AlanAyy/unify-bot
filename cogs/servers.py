@@ -112,13 +112,13 @@ class Servers(commands.Cog):
         return await ctx.send(embed=e)
 
     @blacklist.command(description='Request to blacklist a user from all registered servers.'
-                                 '\nPlease enable Discord\'s Developer Mode before proceeding.'
-                                 '\n\nTo get the user\'s ID, right-click their profile picture or name and '
-                                 'select "Copy ID".',
-                     usage='[user ID] [reason (optional but very recommended)]')
+                                   '\nPlease enable Discord\'s Developer Mode before proceeding.'
+                                   '\n\nTo get the user\'s ID, right-click their profile picture or name and '
+                                   'select "Copy ID".',
+                       usage='[user ID] [reason (optional but very recommended)]')
     @has_permissions(administrator=True)
     @commands.cooldown(1, 30.0, commands.BucketType.user)  # Once every 30s per user
-    async def request(self, ctx, user_id=None, reason='No reason provided.'):
+    async def request(self, ctx, user_id=None, *, reason='No reason provided.'):
         e = discord.Embed(color=DEFAULT_COLOR)
 
         # Check if user is registered with UniFy first
@@ -200,8 +200,8 @@ class Servers(commands.Cog):
                       '&permissions={perms}' \
                       '&scope=bot'
         # TODO: Hex calculator for perms?
-        msg_perms = default_url.format(perms='2048')
-        role_perms = default_url.format(perms='268437504')
+        msg_perms = default_url.format(perms='18432')
+        role_perms = default_url.format(perms='268453888')
         e = discord.Embed(color=DEFAULT_COLOR)
         e.add_field(name='Invite UniFy to your server!',
                     value='[Send Messages only]({url})'.format(url=msg_perms) +
@@ -259,39 +259,48 @@ class Servers(commands.Cog):
                        usage='[User ID] [reason (defaults to None)]')
     @commands.is_owner()  # Only the bot owner may run this command c:
     @commands.dm_only()
-    async def add(self, ctx, user_id, reason=None):
+    async def add(self, ctx, user_id, *, reason=None):
         # TODO: Make a "Blacklisted" role and give them that?
         # Update the blacklist
-        write_settings('users.json', 'blacklisted', user_id, mode='update')
-
-        # Get the user's info for easier finding
+        blacklisted = get_settings('users.json', 'blacklisted')
+        blacklisted.append(user_id)
+        write_settings('users.json', 'blacklisted', blacklisted)
+        # Get the user's info
         blacklisted_user = await self.bot.fetch_user(user_id)
+
         e = discord.Embed(title='ALERT! User has been blacklisted!', description=blacklisted_user.mention,
                           color=discord.Colour.red())
         e.add_field(name='User ID: {.id}'.format(blacklisted_user),
                     value='Please either ban or remove all permissions from this user ASAP!')
-
         # Attempt to ban the blacklisted user from all servers
         # TODO: Remove 150 limit
         async for guild in self.bot.fetch_guilds(limit=150):
             try:
-                await guild.ban(user_id, reason=reason)
+                await guild.ban(blacklisted_user, reason=reason)
             except discord.Forbidden:
                 # Go through each channel and try sending it to the best one
-                channel_list = guild.fetch_channels()
+                channel_list = await guild.fetch_channels()
                 text_channels = [channel for channel in channel_list if isinstance(channel, discord.TextChannel)]
+                # List of best channels to send the alert in
+                best_channels = [
+                    ['mod', 'admin'],
+                    ['general']
+                ]
                 message_sent = False
                 # Go through twice: It will try sending it to the best channel on the
                 # first go, but if it can't, it will try sending it to any channel.
-                for i in range(2):
+                for i in range(len(best_channels) + 1):
+                    print(i)
                     for channel in text_channels:
+                        print('Channel Name: ' + channel.name)
                         try:
-                            # If it's the best channel, or it's our second run-through, send the alert
-                            if ('mod' or 'admin' or 'general' in channel.name) or (i == 1):
+                            # If it's the best channel, or it's our last run-through, send the alert
+                            if i == len(best_channels) or any(priority in channel.name for priority in best_channels[i]):
                                 await channel.send(embed=e)
                                 message_sent = True
                                 break
-                        except discord.Forbidden:
+                        except discord.Forbidden as error:
+                            log(error)
                             continue
                     if message_sent:
                         break
