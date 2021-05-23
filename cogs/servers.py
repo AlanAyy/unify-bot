@@ -290,12 +290,10 @@ class Servers(commands.Cog):
                 # Go through twice: It will try sending it to the best channel on the
                 # first go, but if it can't, it will try sending it to any channel.
                 for i in range(len(best_channels) + 1):
-                    print(i)
                     for channel in text_channels:
-                        print('Channel Name: ' + channel.name)
                         try:
                             # If it's the best channel, or it's our last run-through, send the alert
-                            if i == len(best_channels) or any(priority in channel.name for priority in best_channels[i]):
+                            if i == len(best_channels) or any(name in channel.name for name in best_channels[i]):
                                 await channel.send(embed=e)
                                 message_sent = True
                                 break
