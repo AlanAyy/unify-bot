@@ -2,7 +2,7 @@ import discord
 from discord.ext import commands
 
 from cogs.utils.config import get_settings
-from cogs.utils import user_util
+from cogs.utils import utils
 from cogs.utils.discord_values import DEFAULT_COLOR
 
 
@@ -12,7 +12,8 @@ class Info(commands.Cog):
         self.bot = bot
 
     @commands.command(aliases=['questions'],
-                      description='Gives information about commonly asked questions.')
+                      description='Gives information about commonly asked questions.',
+                      pass_context=True)
     @commands.cooldown(1, 1800.0, commands.BucketType.guild)  # Once every 30m per guild
     async def faq(self, ctx):
         e = discord.Embed(title='UniFy FAQ (Frequently Asked Questions)', color=DEFAULT_COLOR)
@@ -42,13 +43,14 @@ class Info(commands.Cog):
         return await ctx.send(embed=e)
 
     @commands.command(description='Message the owner of this bot.',
-                      usage='{message goes here}')
+                      usage='{message goes here}',
+                      pass_context=True)
     async def mail(self, ctx, *, message):
         # Get owner ID
         owner_id = get_settings('config.json', 'owner_id')
         me = await self.bot.fetch_user(owner_id)
 
-        await user_util.dm(me, ctx, name='Mail', message=message, confirmation_msg='Message sent!')
+        await utils.dm(me, ctx, name='Mail', message=message, confirmation_msg='Message sent!')
 
         #       Messaging time
         # e = discord.Embed(color=discord.Colour.orange(), description=ctx.author.mention)

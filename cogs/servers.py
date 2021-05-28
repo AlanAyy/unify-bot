@@ -2,9 +2,9 @@ import re
 
 import discord
 from discord.ext import commands
-from discord.ext.commands import group, has_permissions
+from discord.ext.commands import has_permissions
 
-from cogs.utils import user_util
+from cogs.utils import utils
 from cogs.utils.config import get_settings, write_settings
 from cogs.utils.discord_values import DEFAULT_COLOR
 from cogs.utils.logger import log
@@ -22,15 +22,16 @@ class Servers(commands.Cog):
     #                         #
     ###########################
 
-    @group(aliases=['server'])
+    @commands.group(aliases=['server'])
     async def servers(self, ctx):
         if ctx.invoked_subcommand is None:
+            print('None subcommand')
             e = discord.Embed(color=DEFAULT_COLOR)
             e.add_field(name='Invalid subcommand!',
                         value='Please type "!help servers" to get started.')
             return await ctx.send(embed=e)
 
-    @group()
+    @commands.group()
     async def blacklist(self, ctx):
         if ctx.invoked_subcommand is None:
             e = discord.Embed(color=DEFAULT_COLOR)
@@ -48,14 +49,13 @@ class Servers(commands.Cog):
                                  'Server Settings > Roles. If you do not have a Verified role, create one. '
                                  'If you do, hover over it, select "More", then "Copy ID".',
                      usage='[server ID] ["name in quotation marks"] [permanent invite] [Verified role ID]')
-    @has_permissions(administrator=True)
     @commands.cooldown(1, 30.0, commands.BucketType.user)  # Once every 30s per user
     async def request(self, ctx, *, message=None):
         # TODO: Proper error handling on cases with incorrect amount of args (should be 4)
         e = discord.Embed(color=DEFAULT_COLOR)
 
         # Check if user is registered with UniFy first
-        if not user_util.is_registered(ctx.author):
+        if not utils.is_registered(ctx.author):
             e.add_field(name='You are not registered!',
                         value='Please complete your registration using "!register" before running this command.')
             return await ctx.send(embed=e)
@@ -97,52 +97,52 @@ class Servers(commands.Cog):
             error_message = 'Invalid Verified role ID!'
         # If it's all valid
         else:
-            await user_util.dm(me, ctx,
-                               '''
-                               Server ID: {0}
-                               Name: {1}
-                               Invite Link: {2}
-                               Verified Role ID: {3}
-                               
-                               To confirm, use `!servers add {0} {1} {2} {3}`'''.format(*args),
-                               confirmation_msg='Request sent successfully!',
-                               name='Server request!')
+            await utils.dm(me, ctx,
+                           '''
+                           Server ID: {0}
+                           Name: {1}
+                           Invite Link: {2}
+                           Verified Role ID: {3}
+                           
+                           To confirm, use `!servers unify {0} {1} {2} {3}`'''.format(*args),
+                           confirmation_msg='Request sent successfully!',
+                           name='Server request!')
             return  # Make sure we're not sending two messages
         e.add_field(name=error_message, value=self._use_help)
         return await ctx.send(embed=e)
 
-    @blacklist.command(description='Request to blacklist a user from all registered servers.'
+    @blacklist.command(description='Appeal to blacklist a user from all registered servers.'
                                    '\nPlease enable Discord\'s Developer Mode before proceeding.'
                                    '\n\nTo get the user\'s ID, right-click their profile picture or name and '
                                    'select "Copy ID".',
                        usage='[user ID] [reason (optional but very recommended)]')
     @has_permissions(administrator=True)
     @commands.cooldown(1, 30.0, commands.BucketType.user)  # Once every 30s per user
-    async def request(self, ctx, user_id=None, *, reason='No reason provided.'):
+    async def appeal(self, ctx, user_id=None, *, reason='No reason provided.'):
         e = discord.Embed(color=DEFAULT_COLOR)
 
         # Check if user is registered with UniFy first
-        if not user_util.is_registered(ctx.author):
+        if not utils.is_registered(ctx.author):
             e.add_field(name='You are not registered!',
                         value='Please complete your registration using "!register" before running this command.')
             return await ctx.send(embed=e)
         elif user_id is None or len(user_id) != 18:
             e.add_field(name='Invalid User ID!',
-                        value='Please type "!help blacklist request" to get started.')
+                        value='Please type "!help blacklist appeal" to get started.')
             return await ctx.send(embed=e)
 
         # Get bot owner info
         owner_id = get_settings('config.json', 'owner_id')
         me = await self.bot.fetch_user(owner_id)
 
-        await user_util.dm(me, ctx,
-                           '''
-                           User ID: {user_id}
-                           Reason: {reason}
-                           
-                           To confirm, use `!blacklist add {user_id}`'''.format(user_id=user_id, reason=reason),
-                           confirmation_msg='Request sent successfully!',
-                           name='BLACKLIST REQUEST!', color=discord.Colour.red())
+        await utils.dm(me, ctx,
+                       '''
+                       User ID: {user_id}
+                       Reason: {reason}
+                       
+                       To confirm, use `!blacklist ban {user_id}`'''.format(user_id=user_id, reason=reason),
+                       confirmation_msg='Appeal sent successfully!',
+                       name='BLACKLIST APPEAL!', color=discord.Colour.red())
 
     #####################
     #                   #
@@ -156,7 +156,7 @@ class Servers(commands.Cog):
         # TODO: Make a "You must be registered!" default embed
         # TODO: Proper. Fucking. Error. Handling.
         # Check if user is registered with UniFy first
-        if not user_util.is_registered(ctx.author):
+        if not utils.is_registered(ctx.author):
             e = discord.Embed(color=DEFAULT_COLOR)
             e.add_field(name='You are not registered!',
                         value='Please complete your registration using "!register" before running this command, '
@@ -191,7 +191,7 @@ class Servers(commands.Cog):
                               'or contact us using "!mail [message]" if you are having issues.')
             return await ctx.send(embed=e)
 
-        return await user_util.dm(ctx.author, ctx, info, name='Server List')
+        return await utils.dm(ctx.author, ctx, info, name='Server List')
 
     @commands.command()
     async def invite(self, ctx):
@@ -219,7 +219,7 @@ class Servers(commands.Cog):
                      usage='[domain] ["category"] [server ID] ["name"] [permanent invite] [ID of "verified role"]')
     @commands.is_owner()  # Only the bot owner may run this command c:
     @commands.dm_only()
-    async def add(self, ctx, *, message):
+    async def unify(self, ctx, *, message):
         # TODO: Auto backup of users.json and servers.json files
         # Same fancy regex voodoo magic
         args = re.compile('["\']\\s+|\\s+["\']').split(message)
@@ -259,7 +259,7 @@ class Servers(commands.Cog):
                        usage='[User ID] [reason (defaults to None)]')
     @commands.is_owner()  # Only the bot owner may run this command c:
     @commands.dm_only()
-    async def add(self, ctx, user_id, *, reason=None):
+    async def ban(self, ctx, user_id, *, reason=None):
         # TODO: Make a "Blacklisted" role and give them that?
         # Update the blacklist
         blacklisted = get_settings('users.json', 'blacklisted')

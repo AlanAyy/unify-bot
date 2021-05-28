@@ -21,10 +21,11 @@ from cogs.utils.discord_values import DEFAULT_COLOR
 #
 #     e = discord.Embed(title='Message sent!', color=discord.Colour.orange(), description=ctx.author.mention)
 #     return await ctx.send(embed=e)
+from cogs.utils.logger import log
 
 
 async def dm(user: Member, ctx: Context, message: str, confirmation_msg: str = None, display_author=True,
-             title=None, color=DEFAULT_COLOR, description=None, name='DM'):
+             title=None, color=DEFAULT_COLOR, description=None, name='Direct Message!'):
     """
     :param user: A Member object of the user who will receive the DM
     :param ctx: The context of the request to DM
@@ -34,7 +35,7 @@ async def dm(user: Member, ctx: Context, message: str, confirmation_msg: str = N
     :param title: Embed title
     :param color: Embed color
     :param description: Embed description (defaults to ctx.author.mention)
-    :param name: Name of the message (defaults to 'DM')
+    :param name: Name of the message (defaults to 'Direct Message!')
     :return: Returns the DM sent
     """
     embed_description = (ctx.author.mention if description is None else description)
@@ -48,6 +49,7 @@ async def dm(user: Member, ctx: Context, message: str, confirmation_msg: str = N
         e2 = discord.Embed(title=confirmation_msg, color=DEFAULT_COLOR, description=ctx.author.mention)
         await ctx.send(embed=e2)
 
+    log('Sent a DM to {.name}!'.format(user))
     return await user.send(embed=e)
 
 
@@ -56,8 +58,3 @@ def is_registered(user: Member) -> bool:
     if str(user.id) in verified.keys():
         return True
     return False
-
-
-def is_verified(user: Member, ctx: Context):
-    # TODO: Check if a user is already verified
-    pass

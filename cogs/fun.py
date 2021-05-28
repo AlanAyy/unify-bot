@@ -10,7 +10,8 @@ class Fun(commands.Cog):
         self.bot = bot
 
     @commands.command(description='Roll dice. (Ex: !roll 2d6)',
-                      usage='[n]d[s] - [n] is the # of dice, and [s] is the # of sides.')
+                      usage='[n]d[s] - [n] is the # of dice, and [s] is the # of sides.',
+                      pass_context=True)
     async def roll(self, ctx, dice):
         dice_amount, dice_type = [int(i) for i in dice.split('d')]
         rolls = [random.randint(1, dice_type) for _ in range(dice_amount)]
@@ -23,7 +24,8 @@ class Fun(commands.Cog):
         return await ctx.send(embed=e)
 
     @commands.command(aliases=['donate', 'support', 'thanks'],
-                      description='Help support the bot! <3')
+                      description='Help support the bot! <3',
+                      pass_context=True)
     async def coffee(self, ctx):
         # TODO: Give people a way to donate to me for supporting this bot or smth lol
         e = discord.Embed(color=discord.Colour.orange())

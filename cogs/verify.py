@@ -10,7 +10,9 @@ from math import floor
 
 import discord
 from discord.ext import commands
-from discord.ext.commands import group, errors
+from discord.ext.commands import errors
+
+from cogs.utils import utils
 from cogs.utils.config import get_settings, write_settings
 from cogs.utils.emailer import send_email
 from cogs.utils.discord_values import DEFAULT_COLOR
@@ -41,16 +43,14 @@ class Verify(commands.Cog):
                                '\nTo finish registering, type "!register code [code]" before the code '
                                'expires in 24 hours.')
 
-    @group(description='Register yourself with UniFy.',
-           usage='- to begin the registration process, '
-                 '\n!register code [code] - to input your verification code (in DMs only), '
-                 '\n!register - again to confirm your registration and receive the verified role '
-                 '(in the #verification server channel).',
-           invoke_without_subcommand=True)
+    @commands.group(description='Register yourself with UniFy.',
+                    usage='- to begin the registration process, '
+                          '\n!register code [code] - to input your verification code (in DMs only), '
+                          '\n!register - again to confirm your registration and receive the verified role '
+                          '(in the #verification server channel).',
+                    invoke_without_subcommand=True,
+                    pass_context=True)
     async def register(self, ctx):
-        # TODO: Check for repeat code inputs to prevent brute-force possibilities
-        # TODO: Check for repeat emails that are already verified
-
         # If the user runs a subcommand (like "!register code"), we need to let the subcommand run
         # without interruption. Simply calling "return" does just that.
         if ctx.invoked_subcommand is not None:
@@ -65,11 +65,13 @@ class Verify(commands.Cog):
             # Start going through the domain's categories
             user_domain = settings.get(str(ctx.author.id)).get('domain')
             server_categories = get_settings('servers.json', user_domain).get('servers')
+            verified_server = None
             for category, servers in server_categories.items():
                 # Go through each server
                 guild = servers.get(str(ctx.guild.id))
                 # If the server exists in the database
                 if guild is not None:
+                    verified_server = guild.get('name')
                     verified_role = guild.get('verified_role')
                     for role in ctx.guild.roles:
                         # If the stored role exists, attempt to give it to user
@@ -85,15 +87,15 @@ class Verify(commands.Cog):
                 e.add_field(name='You already have the Verified role!',
                             value='If you are experiencing issues, please contact us using "!mail [message]".')
             else:
+                log('Successfully verified {user} in {server}!'.format(user=ctx.author, server=verified_server))
                 e.add_field(name='Verification successful!',
                             value='Thank you for using UniFy.')
 
             return await ctx.send(embed=e)
 
         # Upon running !register, send user a DM requesting their email address
-        e = discord.Embed(color=DEFAULT_COLOR)
-        e.add_field(name='Register with UniFy', value=self._register_message)
-        await ctx.author.send(embed=e)
+        await utils.dm(ctx.author, ctx, self._register_message, name='Register with UniFy',
+                       confirmation_msg='Registering {.author}...'.format(ctx))
         e = discord.Embed(color=DEFAULT_COLOR)  # Reset the embed
 
         def check(msg):
@@ -135,7 +137,7 @@ class Verify(commands.Cog):
                                 value='A verification code has been sent to {.content}. '.format(reply) +
                                       'Please check your email (including your spam folder) and type '
                                       'it here.')
-                    e.add_field(name='Format:', value='!register code [insert code here]', inline=True)
+                    e.add_field(name='Format:', value='!register code [insert code here]', inline=False)
                 else:
                     e.add_field(name='User is already pending verification!',
                                 value='A code has already been sent to you. Please complete your pending '
@@ -151,7 +153,8 @@ class Verify(commands.Cog):
         return await ctx.author.send(embed=e)
 
     @register.command(description='Input the verification code sent to your email to register with UniFy',
-                      usage='[code]')
+                      usage='[code]',
+                      pass_context=True)
     @commands.dm_only()
     @commands.cooldown(5, 900.0, commands.BucketType.user)  # Once every 15m per user
     async def code(self, ctx, code):
@@ -187,8 +190,11 @@ class Verify(commands.Cog):
                         }
                         del_pending_user(user)
                         write_settings('users.json', 'verified', data, mode='update')
-                        e.add_field(name='Verification successful!',
-                                    value='You now have access to your domain\'s Discord servers!')
+                        log('User {.author} successfully registered!'.format(ctx))
+                        e.add_field(name='Registration successful!',
+                                    value='You now have access to your domain\'s Discord servers!'
+                                          '\nPlease type "!register" in the verification channel a second time'
+                                          'to receive the Verified role!')
                     else:
                         e.add_field(name='Incorrect code!',
                                     value='Please try again.')

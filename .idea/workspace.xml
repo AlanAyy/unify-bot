@@ -1,9 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="1f044f2f-420a-4881-8c58-a8ab52fdb459" name="Default Changelist" comment="Tested and fixed !blacklist woot">
+    <list default="true" id="1f044f2f-420a-4881-8c58-a8ab52fdb459" name="Default Changelist" comment="Removed debug print statements and fixed var naming">
+      <change afterPath="$PROJECT_DIR$/cogs/utils/error_handler.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cogs/fun.py" beforeDir="false" afterPath="$PROJECT_DIR$/cogs/fun.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cogs/info.py" beforeDir="false" afterPath="$PROJECT_DIR$/cogs/info.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cogs/servers.py" beforeDir="false" afterPath="$PROJECT_DIR$/cogs/servers.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cogs/utils/user_util.py" beforeDir="false" afterPath="$PROJECT_DIR$/cogs/utils/utils.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cogs/verify.py" beforeDir="false" afterPath="$PROJECT_DIR$/cogs/verify.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -37,7 +42,7 @@
   <component name="PropertiesComponent">
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/.idea" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/settings" />
     <property name="project.structure.last.edited" value="Project" />
     <property name="project.structure.proportion" value="0.0" />
     <property name="project.structure.side.proportion" value="0.0" />
@@ -45,8 +50,8 @@
   </component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
-      <recent name="C:\Users\Zenith\IdeaProjects\UniFyBot\.idea" />
       <recent name="C:\Users\Zenith\IdeaProjects\UniFyBot\settings" />
+      <recent name="C:\Users\Zenith\IdeaProjects\UniFyBot\.idea" />
       <recent name="C:\Users\Zenith\IdeaProjects\UniFyBot\backup" />
       <recent name="C:\Users\Zenith\IdeaProjects\UniFyBot" />
       <recent name="C:\Users\Zenith\IdeaProjects\UniFyBot\cogs" />
@@ -124,7 +129,14 @@
       <option name="project" value="LOCAL" />
       <updated>1621812299367</updated>
     </task>
-    <option name="localTasksCounter" value="9" />
+    <task id="LOCAL-00009" summary="Removed debug print statements and fixed var naming">
+      <created>1621812446826</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1621812446826</updated>
+    </task>
+    <option name="localTasksCounter" value="10" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -148,7 +160,8 @@
     <MESSAGE value="Added servers list, and a lot of stuff probably idk" />
     <MESSAGE value="No longer store emails, and added !blacklist" />
     <MESSAGE value="Tested and fixed !blacklist woot" />
-    <option name="LAST_COMMIT_MESSAGE" value="Tested and fixed !blacklist woot" />
+    <MESSAGE value="Removed debug print statements and fixed var naming" />
+    <option name="LAST_COMMIT_MESSAGE" value="Removed debug print statements and fixed var naming" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />
