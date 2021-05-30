@@ -1,13 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="1f044f2f-420a-4881-8c58-a8ab52fdb459" name="Default Changelist" comment="Removed debug print statements and fixed var naming">
-      <change afterPath="$PROJECT_DIR$/cogs/utils/error_handler.py" afterDir="false" />
+    <list default="true" id="1f044f2f-420a-4881-8c58-a8ab52fdb459" name="Default Changelist" comment="Cleanup: Started on String modulation">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cogs/fun.py" beforeDir="false" afterPath="$PROJECT_DIR$/cogs/fun.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cogs/info.py" beforeDir="false" afterPath="$PROJECT_DIR$/cogs/info.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cogs/servers.py" beforeDir="false" afterPath="$PROJECT_DIR$/cogs/servers.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cogs/utils/user_util.py" beforeDir="false" afterPath="$PROJECT_DIR$/cogs/utils/utils.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cogs/utils/discord_values.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cogs/utils/error_handler.py" beforeDir="false" afterPath="$PROJECT_DIR$/cogs/utils/error_handler.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cogs/utils/logger.py" beforeDir="false" afterPath="$PROJECT_DIR$/cogs/utils/logger.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cogs/utils/strings.py" beforeDir="false" afterPath="$PROJECT_DIR$/cogs/utils/values.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cogs/utils/utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/cogs/utils/utils.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cogs/verify.py" beforeDir="false" afterPath="$PROJECT_DIR$/cogs/verify.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -33,6 +35,14 @@
       <filtered-out-file-type name="COMMIT_BY_MESSAGE" />
     </file-type-list>
   </component>
+  <component name="HighlightingSettingsPerFile">
+    <setting file="file://$PROJECT_DIR$/cogs/servers.py" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/cogs/utils/logger.py" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/settings/servers.json" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/cogs/utils/utils.py" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/cogs/info.py" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/cogs/verify.py" root0="FORCE_HIGHLIGHTING" />
+  </component>
   <component name="ProjectId" id="1sPG2YWxLiW1pIfRhM8VpjhjpMH" />
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectViewState">
@@ -42,7 +52,7 @@
   <component name="PropertiesComponent">
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/settings" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="project.structure.last.edited" value="Project" />
     <property name="project.structure.proportion" value="0.0" />
     <property name="project.structure.side.proportion" value="0.0" />
@@ -136,7 +146,14 @@
       <option name="project" value="LOCAL" />
       <updated>1621812446826</updated>
     </task>
-    <option name="localTasksCounter" value="10" />
+    <task id="LOCAL-00010" summary="More logging for debugginging">
+      <created>1622224914660</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1622224914660</updated>
+    </task>
+    <option name="localTasksCounter" value="11" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -161,7 +178,9 @@
     <MESSAGE value="No longer store emails, and added !blacklist" />
     <MESSAGE value="Tested and fixed !blacklist woot" />
     <MESSAGE value="Removed debug print statements and fixed var naming" />
-    <option name="LAST_COMMIT_MESSAGE" value="Removed debug print statements and fixed var naming" />
+    <MESSAGE value="More logging for debugginging" />
+    <MESSAGE value="Cleanup: Started on String modulation" />
+    <option name="LAST_COMMIT_MESSAGE" value="Cleanup: Started on String modulation" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

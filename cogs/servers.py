@@ -4,10 +4,10 @@ import discord
 from discord.ext import commands
 from discord.ext.commands import has_permissions
 
-from cogs.utils import utils
+from cogs.utils import utils, values
 from cogs.utils.config import get_settings, write_settings
-from cogs.utils.discord_values import DEFAULT_COLOR
-from cogs.utils.logger import log
+from cogs.utils.values import DEFAULT_COLOR
+from cogs.utils.error_handler import log
 
 
 class Servers(commands.Cog):
@@ -22,16 +22,15 @@ class Servers(commands.Cog):
     #                         #
     ###########################
 
-    @commands.group(aliases=['server'])
+    @commands.group(**values.Commands.SERVERS)
     async def servers(self, ctx):
         if ctx.invoked_subcommand is None:
-            print('None subcommand')
             e = discord.Embed(color=DEFAULT_COLOR)
             e.add_field(name='Invalid subcommand!',
                         value='Please type "!help servers" to get started.')
             return await ctx.send(embed=e)
 
-    @commands.group()
+    @commands.group(**values.Commands.BLACKLIST)
     async def blacklist(self, ctx):
         if ctx.invoked_subcommand is None:
             e = discord.Embed(color=DEFAULT_COLOR)
@@ -39,16 +38,7 @@ class Servers(commands.Cog):
                         value='Please type "!help servers" to get started.')
             return await ctx.send(embed=e)
 
-    @servers.command(description='Request to have a server added to the database. A verified role must exist.'
-                                 '\nPlease enable Discord\'s Developer Mode before proceeding.'
-                                 '\n\nTo get your server ID, right-click your server icon and select "Copy ID".'
-                                 '\nTo get a permanent invite, click on your server name and select "Invite '
-                                 'People". Next, select "Edit invite link", select "EXPIRE AFTER: Never" '
-                                 'and "MAX NUMBER OF USES: No Limit", then "Generate a New Link", then "Copy".'
-                                 '\nTo get your verified role ID, click on your server name and navigate to '
-                                 'Server Settings > Roles. If you do not have a Verified role, create one. '
-                                 'If you do, hover over it, select "More", then "Copy ID".',
-                     usage='[server ID] ["name in quotation marks"] [permanent invite] [Verified role ID]')
+    @servers.command(**values.Commands.SERVERS_REQUEST)
     @commands.cooldown(1, 30.0, commands.BucketType.user)  # Once every 30s per user
     async def request(self, ctx, *, message=None):
         # TODO: Proper error handling on cases with incorrect amount of args (should be 4)
@@ -111,11 +101,7 @@ class Servers(commands.Cog):
         e.add_field(name=error_message, value=self._use_help)
         return await ctx.send(embed=e)
 
-    @blacklist.command(description='Appeal to blacklist a user from all registered servers.'
-                                   '\nPlease enable Discord\'s Developer Mode before proceeding.'
-                                   '\n\nTo get the user\'s ID, right-click their profile picture or name and '
-                                   'select "Copy ID".',
-                       usage='[user ID] [reason (optional but very recommended)]')
+    @blacklist.command(**values.Commands.BLACKLIST_APPEAL)
     @has_permissions(administrator=True)
     @commands.cooldown(1, 30.0, commands.BucketType.user)  # Once every 30s per user
     async def appeal(self, ctx, user_id=None, *, reason='No reason provided.'):
@@ -150,8 +136,7 @@ class Servers(commands.Cog):
     #                   #
     #####################
 
-    @servers.command(description='',
-                     usage='')
+    @servers.command(**values.Commands.SERVERS_LIST)
     async def list(self, ctx, *, category=None):
         # TODO: Make a "You must be registered!" default embed
         # TODO: Proper. Fucking. Error. Handling.
@@ -193,7 +178,7 @@ class Servers(commands.Cog):
 
         return await utils.dm(ctx.author, ctx, info, name='Server List')
 
-    @commands.command()
+    @commands.command(**values.Commands.INVITE)
     async def invite(self, ctx):
         default_url = 'https://discord.com/api/oauth2/authorize' \
                       '?client_id=843981504785809438' \
@@ -215,8 +200,7 @@ class Servers(commands.Cog):
     #                    #
     ######################
 
-    @servers.command(description='Add a server to the database.',
-                     usage='[domain] ["category"] [server ID] ["name"] [permanent invite] [ID of "verified role"]')
+    @servers.command(**values.Commands.SERVERS_UNIFY)
     @commands.is_owner()  # Only the bot owner may run this command c:
     @commands.dm_only()
     async def unify(self, ctx, *, message):
@@ -255,8 +239,7 @@ class Servers(commands.Cog):
 
         return await ctx.send(embed=e)
 
-    @blacklist.command(description='Blacklist a user from all university Discords.',
-                       usage='[User ID] [reason (defaults to None)]')
+    @blacklist.command(**values.Commands.BLACKLIST_BAN)
     @commands.is_owner()  # Only the bot owner may run this command c:
     @commands.dm_only()
     async def ban(self, ctx, user_id, *, reason=None):

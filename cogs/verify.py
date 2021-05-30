@@ -10,13 +10,11 @@ from math import floor
 
 import discord
 from discord.ext import commands
-from discord.ext.commands import errors
 
-from cogs.utils import utils
+from cogs.utils import utils, values
 from cogs.utils.config import get_settings, write_settings
 from cogs.utils.emailer import send_email
-from cogs.utils.discord_values import DEFAULT_COLOR
-from cogs.utils.logger import log
+from cogs.utils.error_handler import log
 
 
 class Verify(commands.Cog):
@@ -27,29 +25,8 @@ class Verify(commands.Cog):
         self._email_regex = '^[-!#$%&\'*+/0-9=?A-Z^_a-z{|}~](\\.?[-!#$%&\'*+/0-9=?A-Z^_a-z{|}~])*@[a-zA-Z](-?[' \
                             'a-zA-Z0-9])*(\\.[a-zA-Z](-?[a-zA-Z0-9])*)+$'
         # TODO: Replace 'contact the owner' with feature to request adding a university domain
-        self._register_message = ('To register with UniFy, please type in your **university email address**.'
-                                  '\n\n**Your email is not stored by UniFy**. Your privacy and security are our '
-                                  'utmost priority, so your address is only used for the registration process to '
-                                  'confirm that you are a university student, and will *never be shared with '
-                                  'anyone. For more details, please see UniFy\'s Privacy Policy.'
-                                  '\n\nPlease note that UniFy will only register users with a valid '
-                                  'university email. If your university\'s domain is not in our database, '
-                                  'please contact us using "!mail [message]" to have it added.')
-        self._email_message = ('Thank you for registering with UniFy!'
-                               '\nIf you did not initiate this request, please ignore this message.\n'
-                               # '\nUsername: {author}'
-                               # '\nDiscord ID: {id}'
-                               '\nVerification Code: {code}\n'
-                               '\nTo finish registering, type "!register code [code]" before the code '
-                               'expires in 24 hours.')
 
-    @commands.group(description='Register yourself with UniFy.',
-                    usage='- to begin the registration process, '
-                          '\n!register code [code] - to input your verification code (in DMs only), '
-                          '\n!register - again to confirm your registration and receive the verified role '
-                          '(in the #verification server channel).',
-                    invoke_without_subcommand=True,
-                    pass_context=True)
+    @commands.group(**values.Commands.REGISTER)
     async def register(self, ctx):
         # If the user runs a subcommand (like "!register code"), we need to let the subcommand run
         # without interruption. Simply calling "return" does just that.
@@ -60,7 +37,7 @@ class Verify(commands.Cog):
         settings = get_settings('users.json', 'verified')
         if str(ctx.author.id) in settings.keys():
             already_verified = False
-            e = discord.Embed(color=DEFAULT_COLOR, description=ctx.author.mention)
+            e = discord.Embed(color=values.DEFAULT_COLOR, description=ctx.author.mention)
             e.set_author(name=ctx.author, icon_url=ctx.author.avatar_url)
             # Start going through the domain's categories
             user_domain = settings.get(str(ctx.author.id)).get('domain')
@@ -94,9 +71,9 @@ class Verify(commands.Cog):
             return await ctx.send(embed=e)
 
         # Upon running !register, send user a DM requesting their email address
-        await utils.dm(ctx.author, ctx, self._register_message, name='Register with UniFy',
+        await utils.dm(ctx.author, ctx, values.REGISTER, name='Register with UniFy',
                        confirmation_msg='Registering {.author}...'.format(ctx))
-        e = discord.Embed(color=DEFAULT_COLOR)  # Reset the embed
+        e = discord.Embed(color=values.DEFAULT_COLOR)  # Reset the embed
 
         def check(msg):
             return re.search(self._email_regex, msg.content) and msg.channel == ctx.author.dm_channel
@@ -131,7 +108,7 @@ class Verify(commands.Cog):
                     write_settings('users.json', 'pending', data, mode='update')  # Store
                     # Send the email with the code, and inform the user on how to confirm it.
                     send_email(reply.content, 'UniFy Verification Code',
-                               self._email_message.format(author=ctx.author.name, id=ctx.author.id, code=code))
+                               values.EMAIL_MESSAGE.format(author=ctx.author.name, id=ctx.author.id, code=code))
                     log('Email sent to {reply} at {time}.'.format(reply=reply.content, time=now))
                     e.add_field(name='Email sent!',
                                 value='A verification code has been sent to {.content}. '.format(reply) +
@@ -152,13 +129,11 @@ class Verify(commands.Cog):
 
         return await ctx.author.send(embed=e)
 
-    @register.command(description='Input the verification code sent to your email to register with UniFy',
-                      usage='[code]',
-                      pass_context=True)
+    @register.command(**values.Commands.REGISTER_CODE)
     @commands.dm_only()
     @commands.cooldown(5, 900.0, commands.BucketType.user)  # Once every 15m per user
     async def code(self, ctx, code):
-        e = discord.Embed(color=DEFAULT_COLOR)
+        e = discord.Embed(color=values.DEFAULT_COLOR)
 
         def del_pending_user(user_to_delete):
             with open('settings/users.json', 'r+') as fpd:
@@ -172,24 +147,24 @@ class Verify(commands.Cog):
         # Check if the user is pending verification
         pending = get_settings('users.json', 'pending')
         user_found = False
-        for user, values in pending.items():
+        for user, data in pending.items():
             # If the user exists
             if user == str(ctx.author.id):
                 user_found = True
                 # If verification period has not yet expired
-                if floor(time.time()) - values.get('epoch_sent_at') <= 86400:  # 24 hours = 86'400 seconds
+                if floor(time.time()) - data.get('epoch_sent_at') <= 86400:  # 24 hours = 86'400 seconds
                     hashed_code = hashlib.sha512(code.encode('utf-8')).hexdigest()
                     # If their code matches what's in our database
                     if hashed_code == pending.get(user).get('hashed_code'):
                         # Update the users.json file
-                        data = {
+                        update_data = {
                             user: {
-                                # "email": values.get('email'),
-                                "domain": values.get('domain')
+                                # "email": data.get('email'),
+                                "domain": data.get('domain')
                             }
                         }
                         del_pending_user(user)
-                        write_settings('users.json', 'verified', data, mode='update')
+                        write_settings('users.json', 'verified', update_data, mode='update')
                         log('User {.author} successfully registered!'.format(ctx))
                         e.add_field(name='Registration successful!',
                                     value='You now have access to your domain\'s Discord servers!'
@@ -210,31 +185,6 @@ class Verify(commands.Cog):
                         value='Type "!register" to get started.')
 
         return await ctx.author.send(embed=e)
-
-    ######################
-    #                    #
-    #   ERROR-HANDLING   #
-    #                    #
-    ######################
-
-    @register.error
-    async def register_error(self, ctx, error):
-        e = discord.Embed(color=DEFAULT_COLOR)
-        if isinstance(error, errors.CommandNotFound):
-            e.add_field(name='Command not found!',
-                        value='Please check the spelling and try again.')
-        elif isinstance(error, discord.Forbidden):
-            e.add_field(name='DM could not be sent!',
-                        value='Please temporarily allow Direct Messages from other server members '
-                              'to continue with the registration process.')
-        elif isinstance(error, discord.HTTPException):
-            e.add_field(name='I tried giving you the Verified role, but something went wrong!',
-                        value='If you are experiencing issues, please contact us using "!mail {message}".')
-        else:
-            e.add_field(name='There was an error!',
-                        value='We don\'t know exactly what happened there. Please try again.')
-        await ctx.send(embed=e)
-        raise error
 
 
 def setup(bot):
