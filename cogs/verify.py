@@ -14,7 +14,7 @@ from discord.ext import commands
 from cogs.utils import utils, values
 from cogs.utils.config import get_settings, write_settings
 from cogs.utils.emailer import send_email
-from cogs.utils.error_handler import log
+from cogs.utils.utils import log
 
 
 class Verify(commands.Cog):

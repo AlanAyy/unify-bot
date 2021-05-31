@@ -19,7 +19,7 @@ EMAIL_MESSAGE = ('Thank you for registering with UniFy!'
                  '\nTo finish registering, type "!register code [code]" before the code '
                  'expires in 24 hours.')
 
-CHECK_EMAIL = ''
+
 
 INVALID_DOMAIN = ('Your domain @{domain} is not verified.'
                   '\nPlease enter an email address from a verified university domain, '
@@ -131,3 +131,34 @@ class Faq:
 
 class Errors:
     ISSUES = 'If you are experiencing issues, please contact us using "!mail [message]".'
+
+    NOT_REGISTERED = {
+        'name': 'You are not registered with UniFy!',
+        'value': 'Please complete your registration using "!register" before running this command. ' + ISSUES
+    }
+    BLACKLIST_INVALID_USER_ID = {
+        'name': 'Invalid User ID!',
+        'value': ''
+    }
+
+    COMMAND_NOT_FOUND = {
+        'name': 'Command not found!',
+        'value': 'Please confirm you are trying to run a valid command, and try again.'
+    }
+    FORBIDDEN = {
+        'name': 'The bot was prevented from executing the command!',
+        'value': 'Please temporarily allow Direct Messages from other server members, and try again.'
+    }
+    # HTTP_EXCEPTION = {
+    #     'name': 'Something went wrong!',
+    #     'value': ISSUES
+    # }
+    OTHER = {
+        'name': 'There was an error!',
+        'value': ISSUES
+    }
+
+    # INVALID_SUBCOMMAND = {
+    #     'name': 'Invalid subcommand!',
+    #     'value': 'Please type "!help {.command}" to get started.'
+    # }

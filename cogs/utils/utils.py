@@ -1,10 +1,15 @@
+import time
 import discord
 from discord import Member
+from discord.ext import commands
 from discord.ext.commands import Context
 
 from cogs.utils.config import get_settings
 from cogs.utils.values import DEFAULT_COLOR
-from cogs.utils.error_handler import log
+
+
+def log(message):
+    print('\n', time.asctime(time.localtime()), ':', message)
 
 
 async def dm(user: Member, ctx: Context, message: str, confirmation_msg: str = None, display_author=True,
@@ -61,13 +66,11 @@ async def send_basic(ctx: Context, title: str = None, name: str = None, value: s
     return await ctx.send(embed=e)
 
 
-def is_registered(user: Member) -> bool:
-    """
-    Checks if a user is registered with UniFy
-    :param user: The User to check
-    :return: Returns True if they're registered, False otherwise
-    """
-    verified = get_settings('users.json', 'verified')
-    if str(user.id) in verified.keys():
-        return True
-    return False
+async def fetch_owner(bot: commands.Bot):
+    owner_id = get_settings('config.json', 'owner_id')
+    return await bot.fetch_user(owner_id)
+
+# def invalid_subcommand(ctx: Context):
+#     return await send_basic(ctx,
+#                             name=values.Errors.INVALID_SUBCOMMAND['name'],
+#                             value=values.Errors.INVALID_SUBCOMMAND['value'].format(ctx))
