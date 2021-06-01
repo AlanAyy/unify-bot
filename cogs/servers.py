@@ -39,50 +39,31 @@ class Servers(commands.Cog):
     @commands.dm_only()
     @errors.is_registered()
     @commands.cooldown(1, 30.0, commands.BucketType.user)  # Once every 30s per user
-    async def request(self, ctx, *, message=None):
+    async def request(self, ctx, *, message):
         # TODO: Proper error handling on cases with incorrect amount of args (should be 4)
-        e = discord.Embed(color=values.DEFAULT_COLOR)
+        owner = await utils.fetch_owner(self.bot)
 
-        # Check if user is registered with UniFy first
-        if ctx.channel != ctx.author.dm_channel:
-            e.add_field(name='This command cannot be run in a public channel!',
-                        value='Please delete your message, and send the bot a direct message with your '
-                              'command instead. This is in place to protect the privacy of our users.')
-            return await ctx.send(embed=e)
-        elif message is None:
-            e.add_field(name='Invalid subcommand!',
-                        value='Please type "!help servers request" to get started.')
-            return await ctx.send(embed=e)
-
-        # Get bot owner info
-        owner_id = get_settings('config.json', 'owner_id')
-        me = await self.bot.fetch_user(owner_id)
-
-        # Error handling time
         try:
             # Fancy regex voodoo to parse user args c:
             args = re.compile('["\']\\s+|\\s+["\']').split(message)
             args[2:] = re.compile('\\s+').split(args[2])
-        except IndexError as error:
-            e.add_field(name='Invalid use of command!',
-                        value=self._use_help)
-            await ctx.send(embed=e)
-            raise error
+        except IndexError:
+            raise errors.InvalidArguments
 
         # More error handling time
         server_id, name, invite, verified_role = args
         # If there's a letter in the Server ID, or if it's not 18 numbers long
         if re.search('[a-zA-Z]', server_id) is not None or len(server_id) != 18:
-            error_message = 'Invalid server ID!'
+            return await utils.send_basic(ctx, **values.SERVERS_INVALID_SERVER_ID)
         # If the invite link is not a link
         elif 'https://discord.gg/' not in invite:
-            error_message = 'Invalid invite link!'
+            return await utils.send_basic(ctx, **values.SERVERS_INVALID_INVITE)
         # Same checks as Server ID but on the Role ID instead
         elif re.search('[a-zA-Z]', verified_role) is not None or len(verified_role) != 18:
-            error_message = 'Invalid Verified role ID!'
+            return await utils.send_basic(ctx, **values.SERVERS_INVALID_VERIFIED_ROLE)
         # If it's all valid
         else:
-            await utils.dm(me, ctx,
+            await utils.dm(owner, ctx,
                            '''
                            Server ID: {0}
                            Name: {1}
@@ -92,9 +73,6 @@ class Servers(commands.Cog):
                            To confirm, use `!servers unify {0} {1} {2} {3}`'''.format(*args),
                            confirmation_msg='Request sent successfully!',
                            name='Server request!')
-            return  # Make sure we're not sending two messages
-        e.add_field(name=error_message, value=self._use_help)
-        return await ctx.send(embed=e)
 
     @blacklist.command(**values.Commands.BLACKLIST_APPEAL)
     @commands.guild_only()
@@ -104,7 +82,7 @@ class Servers(commands.Cog):
     async def appeal(self, ctx, user_id=None, *, reason='No reason provided.'):
         # Check for a valid User ID
         if user_id is None or len(user_id) != 18:
-            await utils.send_basic(ctx, **values.Errors.BLACKLIST_INVALID_USER_ID)
+            await utils.send_basic(ctx, **values.SERVERS_INVALID_USER_ID)
 
         owner = await utils.fetch_owner(self.bot)
         # TODO: Make this "utils.dm" call cleaner?
@@ -207,15 +185,13 @@ class Servers(commands.Cog):
         write_settings('servers.json', domain, settings_data, mode='update')
 
         log('Server {name} added to servers.json!'.format(name=name))
-        e = discord.Embed(title='Server "{name}" successfully added!'.format(name=name), color=values.DEFAULT_COLOR)
-        e.add_field(name='Domain: {0[0]}'.format(args),
-                    value='''Category: {0[1]}
-                    Server ID: {0[2]}
-                    Name: {0[3]}
-                    Invite Link: {0[4]}
-                    Verified Role: {0[5]}'''.format(args))
-
-        return await ctx.send(embed=e)
+        await utils.send_basic(ctx, title='Server "{name}" successfully added!'.format(name=name),
+                               name='Domain: {0[0]}'.format(args),
+                               value='''Category: {0[1]}
+                                     Server ID: {0[2]}
+                                     Name: {0[3]}
+                                     Invite Link: {0[4]}
+                                     Verified Role: {0[5]}'''.format(args))
 
     @blacklist.command(**values.Commands.BLACKLIST_BAN)
     @commands.is_owner()  # Only the bot owner may run this command c:

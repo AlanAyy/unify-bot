@@ -30,13 +30,20 @@ class CommandErrorHandler(commands.Cog):
         if isinstance(error, ignored):
             return
 
-        # Now for the actual error handling
+        # General errors
         if isinstance(error, commands.errors.CommandNotFound):
             await send_basic(ctx, **Errors.COMMAND_NOT_FOUND)
+        elif isinstance(error, commands.MissingRequiredArgument):
+            await send_basic(ctx, **Errors.MISSING_ARGUMENT)
         elif isinstance(error, discord.Forbidden):
             await send_basic(ctx, **Errors.FORBIDDEN)
         elif isinstance(error, UserNotRegistered):
             await send_basic(ctx, **Errors.NOT_REGISTERED)
+        # Command-specific errors
+        elif isinstance(error, commands.PrivateMessageOnly):
+            await send_basic(ctx, **Errors.DM_ONLY)
+        elif isinstance(error, commands.NoPrivateMessage):
+            await send_basic(ctx, **Errors.GUILD_ONLY)
         else:
             await send_basic(ctx, **Errors.OTHER)
         raise error
@@ -55,7 +62,17 @@ class UserNotRegistered(commands.CheckFailure):
         self.command = command
 
     def __str__(self):
-        return 'User "{user}" tried using command "{command}"!'.format(user=self.user, command=self.command)
+        return 'Unregistered user "{user}" tried using command "{cmd}"!'.format(user=self.user, cmd=self.command)
+
+
+class InvalidArguments(commands.CommandError):
+
+    def __init__(self, user, command):
+        self.user = user
+        self.command = command
+
+    def __str__(self):
+        return '"{user}" tried using command "{cmd}" with invalid arguments!'.format(user=self.user, cmd=self.command)
 
 
 def is_registered():

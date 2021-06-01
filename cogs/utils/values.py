@@ -2,6 +2,9 @@ import discord
 
 DEFAULT_COLOR = discord.Colour.orange()
 
+ISSUES = 'If you are experiencing issues, please contact us using "!mail [message]".'
+HELP = 'Please type "!help [command]" for more information'
+
 REGISTER = ('To register with UniFy, please type in your *university email address*.'
             '\n\n**Your email is not stored by UniFy**. Your privacy and security are our '
             'utmost priority, so your address is only used for the registration process to '
@@ -10,7 +13,6 @@ REGISTER = ('To register with UniFy, please type in your *university email addre
             '\n\nPlease note that UniFy will only register users with a valid '
             'university email. If your university\'s domain is not in our database, '
             'please contact us using "!mail [message]" to have it added.')
-
 EMAIL_MESSAGE = ('Thank you for registering with UniFy!'
                  '\nIf you did not initiate this request, please ignore this message.\n'
                  # '\nUsername: {author}'
@@ -18,14 +20,34 @@ EMAIL_MESSAGE = ('Thank you for registering with UniFy!'
                  '\nVerification Code: {code}\n'
                  '\nTo finish registering, type "!register code [code]" before the code '
                  'expires in 24 hours.')
-
-
-
 INVALID_DOMAIN = ('Your domain @{domain} is not verified.'
                   '\nPlease enter an email address from a verified university domain, '
                   'or contact us using "!mail [message]" to register your university with UniFy.')
 REPLY_EXPIRED = 'Please type in a valid email before time runs out.'
 VERIFICATION_EXPIRED = 'Please try again, and complete the verification process before 24 hours.'
+
+# TODO: Clean up this shit omfg
+
+SERVERS_INVALID_USER_ID = {
+    'name': 'Invalid User ID!',
+    'value': HELP
+}
+SERVERS_INVALID_SERVER_ID = {
+    'name': 'Invalid Server ID!',
+    'value': HELP
+}
+SERVERS_INVALID_INVITE = {
+    'name': 'Invalid Invite Link!',
+    'value': HELP
+}
+SERVERS_INVALID_VERIFIED_ROLE = {
+    'name': 'Invalid Verified Role ID!',
+    'value': HELP
+}
+INCORRECT_ARGUMENT = {
+    'name': 'Invalid argument passed into the command!',
+    'value': 'Please type "!help [command] and try again.'
+}
 
 
 class Commands:
@@ -130,20 +152,26 @@ class Faq:
 
 
 class Errors:
-    ISSUES = 'If you are experiencing issues, please contact us using "!mail [message]".'
-
     NOT_REGISTERED = {
         'name': 'You are not registered with UniFy!',
         'value': 'Please complete your registration using "!register" before running this command. ' + ISSUES
     }
-    BLACKLIST_INVALID_USER_ID = {
-        'name': 'Invalid User ID!',
-        'value': ''
+    DM_ONLY = {
+        'name': 'This command can only be run in DMs!',
+        'value': 'Please delete your message, and send the bot a Direct Message with your command instead.'
+    }
+    GUILD_ONLY = {
+        'name': 'This command cannot be run in DMs!',
+        'value': 'Please run this command in a server with UniFy.'
     }
 
     COMMAND_NOT_FOUND = {
         'name': 'Command not found!',
         'value': 'Please confirm you are trying to run a valid command, and try again.'
+    }
+    MISSING_ARGUMENT = {
+        'name': 'Command is missing a required argument!',
+        'value': HELP
     }
     FORBIDDEN = {
         'name': 'The bot was prevented from executing the command!',
