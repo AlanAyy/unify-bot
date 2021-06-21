@@ -44,6 +44,10 @@ SERVERS_INVALID_VERIFIED_ROLE = {
     'name': 'Invalid Verified Role ID!',
     'value': HELP
 }
+SERVERS_INVALID_CATEGORY = {
+    'name': 'That category does not exist!',
+    'value': 'Please check the spelling (and capitalization) of the category, and try again.'
+}
 INCORRECT_ARGUMENT = {
     'name': 'Invalid argument passed into the command!',
     'value': 'Please type "!help [command] and try again.'
@@ -70,6 +74,7 @@ class Commands:
     SERVERS_REQUEST = {
         'description': 'Request to have a server added to the database. A verified role must exist.'
                        '\nPlease enable Discord\'s Developer Mode before proceeding.'
+                       '\n*Make sure to include the commas!*'
                        '\n\nTo get your server ID, right-click your server icon and select "Copy ID".'
                        '\nTo get a permanent invite, click on your server name and select "Invite '
                        'People". Next, select "Edit invite link", select "EXPIRE AFTER: Never" '
@@ -77,7 +82,7 @@ class Commands:
                        '\nTo get your verified role ID, click on your server name and navigate to '
                        'Server Settings > Roles. If you do not have a Verified role, create one. '
                        'If you do, hover over it, select "More", then "Copy ID".',
-        'usage': '[server ID] ["name in quotation marks"] [permanent invite] [Verified role ID]'
+        'usage': '[server ID], [name], [permanent invite], [Verified role ID]'
     }
     SERVERS_UNIFY = {
         'description': 'Add a server to the database.',
@@ -173,6 +178,9 @@ class Errors:
         'name': 'Command is missing a required argument!',
         'value': HELP
     }
+    INVALID_ARGUMENT = {
+        'name': 'Invalid '
+    }
     FORBIDDEN = {
         'name': 'The bot was prevented from executing the command!',
         'value': 'Please temporarily allow Direct Messages from other server members, and try again.'
@@ -181,6 +189,10 @@ class Errors:
     #     'name': 'Something went wrong!',
     #     'value': ISSUES
     # }
+    EXPIRED_TOKEN = {
+        'name': 'Email could not be sent (token is expired)!',
+        'value': 'Please contact us using "!mail [message]" so we can refresh the OAuth2 token.'
+    }
     OTHER = {
         'name': 'There was an error!',
         'value': ISSUES

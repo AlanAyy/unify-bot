@@ -1,3 +1,5 @@
+import re
+
 import discord
 from discord.ext import commands
 
@@ -35,6 +37,8 @@ class CommandErrorHandler(commands.Cog):
             await send_basic(ctx, **Errors.COMMAND_NOT_FOUND)
         elif isinstance(error, commands.MissingRequiredArgument):
             await send_basic(ctx, **Errors.MISSING_ARGUMENT)
+        elif isinstance(error, InvalidArgument):
+            await send_basic(ctx, **Errors.INVALID_ARGUMENT)
         elif isinstance(error, discord.Forbidden):
             await send_basic(ctx, **Errors.FORBIDDEN)
         elif isinstance(error, UserNotRegistered):
@@ -44,6 +48,8 @@ class CommandErrorHandler(commands.Cog):
             await send_basic(ctx, **Errors.DM_ONLY)
         elif isinstance(error, commands.NoPrivateMessage):
             await send_basic(ctx, **Errors.GUILD_ONLY)
+        elif isinstance(error, ExpiredEmailToken):
+            await send_basic(ctx, **Errors.EXPIRED_TOKEN)
         else:
             await send_basic(ctx, **Errors.OTHER)
         raise error
@@ -65,14 +71,34 @@ class UserNotRegistered(commands.CheckFailure):
         return 'Unregistered user "{user}" tried using command "{cmd}"!'.format(user=self.user, cmd=self.command)
 
 
-class InvalidArguments(commands.CommandError):
+class InvalidArgAmount(commands.CommandError):
 
-    def __init__(self, user, command):
+    def __init__(self, user, command, args_len):
         self.user = user
         self.command = command
+        self.args_len = args_len
 
     def __str__(self):
-        return '"{user}" tried using command "{cmd}" with invalid arguments!'.format(user=self.user, cmd=self.command)
+        return '"{user}" tried running command "{cmd}" with {args_len} args!' \
+            .format(user=self.user, cmd=self.command, args_len=self.args_len)
+
+
+class InvalidArgument(commands.CommandError):
+
+    def __init__(self, arg):
+        self.arg = arg
+
+    def __str__(self):
+        return '"{arg}" is not a valid argument!'.format(arg=self.arg)
+
+
+class ExpiredEmailToken(commands.CommandError):
+
+    def __init__(self):
+        pass
+
+    def __str__(self):
+        return 'Email token is expired! Please acquire a new token.'
 
 
 def is_registered():
@@ -89,6 +115,14 @@ def is_registered():
         return True
 
     return commands.check(predicate)
+
+
+def is_valid_arg(arg: str, arg_type: str):
+    if arg_type == 'id' and (re.search('[a-zA-Z]', arg) is not None or len(arg) != 18):
+        raise InvalidArgument('id')
+    elif arg_type == 'invite' and 'https://discord.gg/' not in arg:
+        raise InvalidArgument('invite')
+    return True
 
 
 def setup(bot):

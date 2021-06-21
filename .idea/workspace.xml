@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="1f044f2f-420a-4881-8c58-a8ab52fdb459" name="Default Changelist" comment="Proper error handling implemented">
+    <list default="true" id="1f044f2f-420a-4881-8c58-a8ab52fdb459" name="Default Changelist" comment="More cleanup :v">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cogs/servers.py" beforeDir="false" afterPath="$PROJECT_DIR$/cogs/servers.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cogs/utils/emailer.py" beforeDir="false" afterPath="$PROJECT_DIR$/cogs/utils/emailer.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cogs/utils/errors.py" beforeDir="false" afterPath="$PROJECT_DIR$/cogs/utils/errors.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cogs/utils/values.py" beforeDir="false" afterPath="$PROJECT_DIR$/cogs/utils/values.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cogs/verify.py" beforeDir="false" afterPath="$PROJECT_DIR$/cogs/verify.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -46,7 +48,7 @@
   <component name="PropertiesComponent">
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../EmberBot" />
     <property name="project.structure.last.edited" value="Project" />
     <property name="project.structure.proportion" value="0.0" />
     <property name="project.structure.side.proportion" value="0.0" />
@@ -168,7 +170,14 @@
       <option name="project" value="LOCAL" />
       <updated>1622501893002</updated>
     </task>
-    <option name="localTasksCounter" value="14" />
+    <task id="LOCAL-00014" summary="More cleanup :v">
+      <created>1622517299955</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1622517299955</updated>
+    </task>
+    <option name="localTasksCounter" value="15" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -196,7 +205,8 @@
     <MESSAGE value="More logging for debugginging" />
     <MESSAGE value="Cleanup: Started on String modulation" />
     <MESSAGE value="Proper error handling implemented" />
-    <option name="LAST_COMMIT_MESSAGE" value="Proper error handling implemented" />
+    <MESSAGE value="More cleanup :v" />
+    <option name="LAST_COMMIT_MESSAGE" value="More cleanup :v" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

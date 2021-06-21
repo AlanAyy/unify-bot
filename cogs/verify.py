@@ -10,8 +10,9 @@ from math import floor
 
 import discord
 from discord.ext import commands
+from google.auth import exceptions
 
-from cogs.utils import utils, values
+from cogs.utils import errors, utils, values
 from cogs.utils.config import get_settings, write_settings
 from cogs.utils.emailer import send_email
 from cogs.utils.utils import log
@@ -107,8 +108,11 @@ class Verify(commands.Cog):
                     }
                     write_settings('users.json', 'pending', data, mode='update')  # Store
                     # Send the email with the code, and inform the user on how to confirm it.
-                    send_email(reply.content, 'UniFy Verification Code',
-                               values.EMAIL_MESSAGE.format(author=ctx.author.name, id=ctx.author.id, code=code))
+                    try:
+                        send_email(reply.content, 'UniFy Verification Code',
+                                   values.EMAIL_MESSAGE.format(author=ctx.author.name, id=ctx.author.id, code=code))
+                    except exceptions.RefreshError:
+                        raise errors.ExpiredEmailToken
                     log('Email sent to {reply} at {time}.'.format(reply=reply.content, time=now))
                     e.add_field(name='Email sent!',
                                 value='A verification code has been sent to {.content}. '.format(reply) +

@@ -26,8 +26,9 @@ def send_email(to, subject, message_text):
     # If there are no (valid) credentials available, let the user log in.
     if not creds or not creds.valid:
         if creds and creds.expired and creds.refresh_token:
-            creds.refresh(Request())
+            creds.refresh(Request())  # This causes the error
         else:
+            # This is what opens the Chrome tab to request access
             flow = InstalledAppFlow.from_client_secrets_file('settings/gmail_credentials.json', SCOPES)
             creds = flow.run_local_server(port=0)
         # Save the credentials for the next run
